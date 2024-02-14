@@ -45,6 +45,9 @@ export class StripeController {
 
     const screenLimitCompany = company.data.screenLimit;
     const screenLength = company.data.screens.length;
+    console.log(`screenLength: ${screenLength}`);
+    console.log(`screenLimitCompany: ${screenLimitCompany}`);
+    
     if (screenLength >= screenLimitCompany) {
       throw new HttpException("SCREEN_LIMIT_EXCEEDED", 400);
     }
