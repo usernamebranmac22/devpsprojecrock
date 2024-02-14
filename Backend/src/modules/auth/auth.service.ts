@@ -193,7 +193,7 @@ export class AuthService {
           !userObjectLogin.adminCode ||
           userObjectLogin.adminCode !== findUser.adminCode
         ) {
-          throw new HttpException("INVALID_ADMIN_CODE", 403);
+          //throw new HttpException("INVALID_ADMIN_CODE", 403);
         }
       }
 
