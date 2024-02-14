@@ -4,9 +4,9 @@ export class CreateScreenDto {
   @IsString()
   name: string;
 
-  @IsString()
-  code: string;
-
   @IsNumber()
   idCompany: number;
+
+  @IsString()
+  password: string;
 }

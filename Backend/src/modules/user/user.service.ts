@@ -112,7 +112,7 @@ export class UserService {
   async findOne(id: number) {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ["country", "state", "city", "activeMembership"],
+      relations: ["country", "state", "city", "activeMembership", "screens"],
     });
     if (!user) throw new HttpException("USER_NOT_FOUND", 404);
     return { message: "Ok", data: user };
@@ -281,7 +281,7 @@ export class UserService {
     user.membershipExpirationDate = null;
     user.employeLimit = null;
     user.screenLimit = null;
-    
+
     await this.userRepository.save(user);
 
     this.emailService.sendEmail(

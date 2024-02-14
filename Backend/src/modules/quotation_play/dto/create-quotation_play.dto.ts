@@ -5,5 +5,5 @@ export class CalculatePriceDto {
   idVideo: string;
 
   @IsNumber()
-  idCompany: number;
+  idScreen: number;
 }

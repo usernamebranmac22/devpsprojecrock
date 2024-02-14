@@ -6,6 +6,7 @@ import { CreateScreenDto } from "./dto/create-screen.dto";
 import { User } from "src/entities/user.entity";
 import { ROLES } from "src/constants";
 import { EditScreenDto } from "./dto/edit-screen.dto";
+import { randomBytes } from "crypto";
 
 @Injectable()
 export class ScreenService {
@@ -32,7 +33,10 @@ export class ScreenService {
 
   async getScreenById(id: number): Promise<Screen> {
     console.log("id", id);
-    const screen = await this.screenRepository.findOne({ where: { id } });
+    const screen = await this.screenRepository.findOne({
+      where: { id },
+      relations: ["company"],
+    });
     if (!screen) {
       throw new HttpException("SCREEN_NOT_FOUND", 404);
     }
@@ -40,7 +44,7 @@ export class ScreenService {
   }
 
   async createScreen(objectCreate: CreateScreenDto) {
-    const { idCompany, name, code } = objectCreate;
+    const { idCompany, name, password } = objectCreate;
 
     const company = await this.userRepository.findOne({
       where: { id: idCompany },
@@ -62,12 +66,44 @@ export class ScreenService {
 
     const screen = new Screen();
     screen.name = name;
-    screen.code = code;
+    screen.password = password;
     screen.company = company;
     screen.active = true;
+    screen.code = await this.generateUniqueCode();
+
     await this.screenRepository.save(screen);
 
     return screen;
+  }
+  private async generateUniqueCode(
+    attempts = 0,
+    maxAttempts = 10
+  ): Promise<string> {
+    if (attempts >= maxAttempts) {
+      throw new Error(
+        "No se pudo generar un código único después de varios intentos."
+      );
+    }
+
+    const randomBytesBuffer = randomBytes(3);
+    const threeDigitCode = randomBytesBuffer
+      .toString("hex")
+      .toUpperCase()
+      .slice(0, 4);
+
+    const code = `S${threeDigitCode}`;
+
+    // Verificar si el código ya existe en la base de datos
+    const existingScreen = await this.screenRepository.findOne({
+      where: { code: code },
+    });
+
+    if (existingScreen) {
+      // Si el código ya existe, intentar generar uno nuevo recursivamente
+      return this.generateUniqueCode(attempts + 1, maxAttempts);
+    }
+
+    return code;
   }
 
   async editScreen(id: number, editScreenDto: EditScreenDto) {
@@ -90,6 +126,19 @@ export class ScreenService {
     }
 
     // Guardar los cambios en la base de datos
+    await this.screenRepository.save(screen);
+
+    return screen;
+  }
+
+  async createDefaultScreen(user: User) {
+    const screen = new Screen();
+    screen.name = user.name + " Screen";
+    screen.password = "1234";
+    screen.company = user;
+    screen.active = true;
+    screen.default = true;
+    screen.code = await this.generateUniqueCode();
     await this.screenRepository.save(screen);
 
     return screen;

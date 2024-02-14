@@ -80,7 +80,7 @@ export class YoutubeService {
     };
   }
 
-  private async getVideoDetails(videoId: string) {
+  async getVideoDetails(videoId: string) {
     try {
       const response = await axios.get(`${this.apiUrl}videos`, {
         params: {

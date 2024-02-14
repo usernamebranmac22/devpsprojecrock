@@ -9,10 +9,16 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { StripeService } from "./stripe.service";
+import { ScreenService } from "../screen/screen.service";
+import { parse } from "path";
+import { UserService } from "../user/user.service";
 
 @Controller("stripe")
 export class StripeController {
-  constructor(private readonly stripeService: StripeService) {}
+  constructor(
+    private readonly stripeService: StripeService,
+    private readonly userService: UserService
+  ) {}
   @Post("create-checkout-session-subscription")
   async createCheckoutSessionSubscription(
     @Body("membershipId") membershipId: number,
@@ -27,6 +33,26 @@ export class StripeController {
       return { error: "error" };
     }
 
+    return { sessionId: session.id };
+  }
+
+  @Post("create-checkout-session-screen")
+  async createCheckoutSessionScreen(
+    @Body("screenName") screenName: string,
+    @Body("userId") userId: number
+  ) {
+    const company = await this.userService.findOne(userId);
+
+    const screenLimitCompany = company.data.screenLimit;
+    const screenLength = company.data.screens.length;
+    if (screenLength >= screenLimitCompany) {
+      throw new HttpException("SCREEN_LIMIT_EXCEEDED", 400);
+    }
+
+    const session = await this.stripeService.createCheckoutSessionScreen(
+      screenName,
+      userId
+    );
     return { sessionId: session.id };
   }
 
@@ -61,9 +87,34 @@ export class StripeController {
       if (!event) throw new BadRequestException("Invalid Stripe signature");
 
       // Procesar el evento
-      const processedEvent =
-        await this.stripeService.processWebhookEvent(event);
 
+      if ("metadata" in event.data.object) {
+        // Obtener información adicional de la metadata
+
+        const purchaseType = event.data.object.metadata.pucharseType;
+        console.log(purchaseType);
+
+        // Verificar el tipo de compra
+        switch (purchaseType) {
+          case "subscription":
+            console.log("Procesar evento de suscripción");
+            const processedEvent =
+              await this.stripeService.processWebhookEventSubscription(event);
+            break;
+          case "screen":
+            console.log("Procesar evento de pantalla");
+            const processedEventScreen =
+              await this.stripeService.processWebhookEventScreen(event);
+            break;
+          // Otros casos según tus necesidades
+
+          default:
+            console.log(`Unhandled purchase type: ${purchaseType}`);
+        }
+      }
+
+      // Devolver una respuesta exitosa al servidor de Stripe
+      return { received: true };
       // Devolver una respuesta exitosa al servidor de Stripe
       return { received: true };
     } catch (error) {

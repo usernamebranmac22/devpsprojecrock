@@ -5,6 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Membership } from "src/entities/membership.entity";
 import { Repository } from "typeorm";
 import { UserService } from "../user/user.service";
+import { ScreenService } from "../screen/screen.service";
 const configService = new ConfigService();
 
 @Injectable()
@@ -16,7 +17,8 @@ export class StripeService {
   constructor(
     @InjectRepository(Membership)
     private readonly membershipRepository: Repository<Membership>,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly screenService: ScreenService
   ) {}
 
   async createCheckoutSessionSubscription(
@@ -50,7 +52,7 @@ export class StripeService {
           quantity: 1,
         },
       ],
-      success_url: `https://rockola-company.netlify.app/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${configService.get("URL_FRONT_ADMIN")}/subscriptions`,
       metadata: {
         userId: userId,
@@ -58,6 +60,34 @@ export class StripeService {
         membership_name: membership.name,
         membership_type: membership.type,
         membership_expiration: nextMonth.toISOString(),
+        pucharseType: "subscription",
+      },
+    });
+    return session;
+  }
+
+  async createCheckoutSessionScreen(name: string, userId: number) {
+    const session = await this.stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Compra de Pantalla Extra",
+            },
+            unit_amount: 200,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${configService.get("URL_FRONT_ADMIN")}/screen/success`,
+      cancel_url: `${configService.get("URL_FRONT_ADMIN")}/screen/cancel`,
+      metadata: {
+        screenName: name,
+        userId: userId,
+        pucharseType: "screen",
       },
     });
     return session;
@@ -127,7 +157,7 @@ export class StripeService {
     return this.stripe.webhooks.constructEvent(payload, signature, secret);
   }
 
-  async processWebhookEvent(event: any): Promise<any> {
+  async processWebhookEventSubscription(event: any): Promise<any> {
     if (event.type === "checkout.session.completed") {
       const idUser = event.data.object.metadata.userId;
       const idMembership = event.data.object.metadata.membershipId;
@@ -136,6 +166,17 @@ export class StripeService {
         idUser,
         idMembership
       );
+    }
+  }
+  async processWebhookEventScreen(event: any): Promise<any> {
+    if (event.type === "checkout.session.completed") {
+      const idUser = event.data.object.metadata.userId;
+
+      const response = await this.screenService.createScreen({
+        idCompany: idUser,
+        name: event.data.object.metadata.screenName,
+        password: "1234",
+      });
     }
   }
 }

@@ -13,56 +13,79 @@ import { ROLES } from "src/constants";
 import { ModeplayService } from "../modeplay/modeplay.service";
 import convertMilisecondsToTime from "src/utils/convertMilisecondsToTime";
 import calculatePriceByDuration from "src/utils/calculatePriceByDuration";
+import { ScreenService } from "../screen/screen.service";
 
 @Injectable()
 export class QuotationPlayService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly youtubeService: YoutubeService,
-    private readonly modeplayService: ModeplayService
+    private readonly modeplayService: ModeplayService,
+    private readonly screenService: ScreenService
   ) {}
 
   async calculatePrice(createQuotationPlayDto: CalculatePriceDto) {
     try {
-      const company = await this.userRepository.findOne({
-        where: { id: createQuotationPlayDto.idCompany },
-      });
+      const screen = await this.screenService.getScreenById(
+        createQuotationPlayDto.idScreen
+      );
 
+      if (!screen) throw new HttpException("SCREEN_NOT_FOUND", 404);
+      const company = screen.company;
       if (!company) throw new HttpException("COMPANY_NOT_FOUND", 404);
-      if (company.type !== ROLES.EMPRESA)
-        throw new HttpException("USER_NOT_COMPANY", 400);
 
       const modeplays = await this.modeplayService.findAll();
       const idVideos = createQuotationPlayDto.idVideo.split(",");
 
       const prices = await Promise.all(
         idVideos.map(async (idVideo) => {
-          const duration = await this.youtubeService.getDuration(idVideo);
-          const price = calculatePriceByDuration(duration);
-          return {
-            VIDEO: {
-              costs: {
-                [NAME_MODEPLAY.PLATINUM]: {
-                  price: price * COST_MODEPLAY.PLATINUM,
-                  title: modeplays.find((m) => m.type === MODEPLAY.PLATINUM)
-                    .title,
-                  type: MODEPLAY.PLATINUM,
+          try {
+            const duration = await this.youtubeService.getDuration(idVideo);
+            const videoDetails =
+              await this.youtubeService.getVideoDetails(idVideo);
+
+            const price = calculatePriceByDuration(duration);
+            return {
+              VIDEO: {
+                details: {
+                  id: idVideo,
+                  thumbnails: {
+                    default: videoDetails.snippet.thumbnails.default.url,
+                    medium: videoDetails.snippet.thumbnails.medium.url,
+                    high: videoDetails.snippet.thumbnails.high.url,
+                  },
+                  chanelTitle: videoDetails.snippet.channelTitle,
+                  title: videoDetails.snippet.title,
                 },
-                [NAME_MODEPLAY.VIP]: {
-                  price: price * COST_MODEPLAY.VIP,
-                  title: modeplays.find((m) => m.type === MODEPLAY.VIP).title,
-                  type: MODEPLAY.VIP,
+                costs: {
+                  [NAME_MODEPLAY.PLATINUM]: {
+                    price: price * COST_MODEPLAY.PLATINUM,
+                    title: modeplays.find((m) => m.type === MODEPLAY.PLATINUM)
+                      .title,
+                    type: MODEPLAY.PLATINUM,
+                  },
+                  [NAME_MODEPLAY.VIP]: {
+                    price: price * COST_MODEPLAY.VIP,
+                    title: modeplays.find((m) => m.type === MODEPLAY.VIP).title,
+                    type: MODEPLAY.VIP,
+                  },
+                  [NAME_MODEPLAY.NORMAL]: {
+                    price: price * COST_MODEPLAY.NORMAL,
+                    title: modeplays.find((m) => m.type === MODEPLAY.NORMAL)
+                      .title,
+                    type: MODEPLAY.NORMAL,
+                  },
                 },
-                [NAME_MODEPLAY.NORMAL]: {
-                  price: price * COST_MODEPLAY.NORMAL,
-                  title: modeplays.find((m) => m.type === MODEPLAY.NORMAL)
-                    .title,
-                  type: MODEPLAY.NORMAL,
-                },
+                duration: convertMilisecondsToTime(duration),
               },
-              duration: convertMilisecondsToTime(duration),
-            },
-          };
+            };
+          } catch (error) {
+            console.error(
+              `Error al procesar el video con ID ${idVideo}:`,
+              error
+            );
+            return null;
+          }
         })
       );
 

@@ -5,9 +5,15 @@ import { User } from "src/entities/user.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { YoutubeModule } from "../youtube/youtube.module";
 import { ModeplayModule } from "../modeplay/modeplay.module";
+import { ScreenModule } from "../screen/screen.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), YoutubeModule, ModeplayModule],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    YoutubeModule,
+    ModeplayModule,
+    ScreenModule,
+  ],
   controllers: [QuotationPlayController],
   providers: [QuotationPlayService],
   exports: [QuotationPlayService],
