@@ -1,4 +1,4 @@
- import { HttpException, Injectable } from "@nestjs/common";
+import { HttpException, Injectable } from "@nestjs/common";
 import { LoginAuthDto } from "./dto/login-auth.dto";
 import { RegisterAuthDtoBase } from "./dto/register-auth.dto";
 import { hash, compare } from "bcrypt";
@@ -16,6 +16,7 @@ import { CountryService } from "../country/country.service";
 import { Country } from "src/entities/country.entity";
 import { State } from "src/entities/state.entity";
 import { City } from "src/entities/city.entity";
+import { ScreenService } from "../screen/screen.service";
 const logger = new Logger("MyApp");
 
 @Injectable()
@@ -25,6 +26,7 @@ export class AuthService {
     private readonly walletService: WalletService,
     private jwtAuthService: JwtService,
     private readonly emailService: EmailService,
+    private readonly screenService: ScreenService,
     @InjectRepository(Country)
     private readonly countryRepository: Repository<Country>,
     @InjectRepository(State)
@@ -95,6 +97,11 @@ export class AuthService {
           userPayload.birth_Date = userObjectRegister.birthDate;
         }
         user = await this.userRepository.save(userPayload);
+
+        if (type === ROLES.EMPRESA) {
+          await this.screenService.createDefaultScreen(user);
+        }
+        
         const wallet = await this.walletService.createWalletForUser(user.id);
         user.wallet = wallet;
         await this.userRepository.save(user);

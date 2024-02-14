@@ -1,4 +1,5 @@
 import {
+  BeforeInsert,
   Column,
   Entity,
   JoinColumn,
@@ -6,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "./user.entity";
+import { randomBytes } from "crypto";
 
 @Entity()
 export class Screen {
@@ -15,13 +17,19 @@ export class Screen {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ unique: true })
   code: string;
 
   @Column()
   active: boolean;
 
+  @Column({ nullable: true })
+  password: string;
+
   @ManyToOne(() => User, (user) => user.screens)
-  @JoinColumn({ name: "companyId" })
+  @JoinColumn()
   company: User;
+
+  @Column({ default: false })
+  default: boolean;
 }

@@ -115,7 +115,7 @@ export class User extends BaseEntity {
   membershipExpirationDate: Date;
 
   @OneToMany(() => Employee, (employee) => employee.user)
-  employees: Employee[]; 
+  employees: Employee[];
 
   @Column({ default: false })
   isDelete: boolean;
@@ -123,9 +123,10 @@ export class User extends BaseEntity {
   @OneToMany(() => Screen, (screen) => screen.company)
   screens: Screen[];
 
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   employeLimit: number;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   screenLimit: number;
+
 }

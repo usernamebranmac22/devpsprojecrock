@@ -12,6 +12,7 @@ import { EmailModule } from "../email/email.module";
 import { CountryModule } from "../country/country.module";
 import { StateModule } from "../state/state.module";
 import { CityModule } from "../city/city.module";
+import { ScreenModule } from "../screen/screen.module";
 
 const configService = new ConfigService();
 
@@ -23,6 +24,7 @@ const configService = new ConfigService();
     EmailModule,
     WalletModule,
     ModeplayModule,
+    ScreenModule,
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([ModePlay]),
     JwtModule.register({

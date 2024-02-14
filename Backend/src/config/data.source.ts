@@ -16,12 +16,11 @@ const configService = new ConfigService();
 //username: "postgres",
 //password: "Ale31110364",
 //database: "rockola",
-//entities: [__dirname + "/../**/*.entity{.ts,.js}"],
-//synchronize: true,
+// entities: [__dirname + "/../**/*.entity{.ts,.js}"],
+// synchronize: true,
 //};
 
 //RENDER CONFIG
-
 export const DataSourceConfig: DataSourceOptions = {
   type: "postgres",
   url: configService.get("DB_URL"),
