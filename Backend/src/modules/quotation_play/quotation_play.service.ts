@@ -14,6 +14,7 @@ import { ModeplayService } from "../modeplay/modeplay.service";
 import convertMilisecondsToTime from "src/utils/convertMilisecondsToTime";
 import calculatePriceByDuration from "src/utils/calculatePriceByDuration";
 import { ScreenService } from "../screen/screen.service";
+import { title } from "process";
 
 @Injectable()
 export class QuotationPlayService {
@@ -60,19 +61,15 @@ export class QuotationPlayService {
                 costs: {
                   [NAME_MODEPLAY.PLATINUM]: {
                     price: price * COST_MODEPLAY.PLATINUM,
-                    title: modeplays.find((m) => m.type === MODEPLAY.PLATINUM)
-                      .title,
+                
                     type: MODEPLAY.PLATINUM,
                   },
                   [NAME_MODEPLAY.VIP]: {
                     price: price * COST_MODEPLAY.VIP,
-                    title: modeplays.find((m) => m.type === MODEPLAY.VIP).title,
                     type: MODEPLAY.VIP,
                   },
                   [NAME_MODEPLAY.NORMAL]: {
                     price: price * COST_MODEPLAY.NORMAL,
-                    title: modeplays.find((m) => m.type === MODEPLAY.NORMAL)
-                      .title,
                     type: MODEPLAY.NORMAL,
                   },
                 },
