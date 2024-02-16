@@ -10,5 +10,5 @@ export class EditScreenDto {
   code?: string;
 
   @IsOptional()
-  active: boolean;
+  password: string;
 }

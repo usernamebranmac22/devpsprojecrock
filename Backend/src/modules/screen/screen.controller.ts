@@ -35,7 +35,6 @@ export class ScreenController {
     return { message: "ok", data: screen };
   }
 
-
   @Post()
   async createScreen(@Body() createScreenDto: CreateScreenDto) {
     try {
@@ -61,5 +60,12 @@ export class ScreenController {
     } catch (error) {
       return { error: "No se pudo editar la pantalla", details: error.message };
     }
+  }
+
+  @Patch("toggle/:id")
+  async toggleScreen(@Param("id") id: number, @Body() { userId }) {
+    console.log(id);
+    const screen = await this.screenService.toggleScreen(id, userId);
+    return { message: "ok", data: screen };
   }
 }

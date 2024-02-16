@@ -119,8 +119,6 @@ export class StripeController {
 
       // Devolver una respuesta exitosa al servidor de Stripe
       return { received: true };
-      // Devolver una respuesta exitosa al servidor de Stripe
-      return { received: true };
     } catch (error) {
       console.error("Error processing webhook event:", error.message);
       return { error: "Failed to process webhook event" };

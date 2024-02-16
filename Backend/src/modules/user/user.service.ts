@@ -9,6 +9,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { Membership } from "src/entities/membership.entity";
 import { EmailService } from "../email/email.service";
 import getBenefits from "src/utils/getBenefits";
+import { ScreenService } from "../screen/screen.service";
 
 @Injectable()
 export class UserService {
@@ -16,7 +17,8 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Membership)
     private readonly membershipRepository: Repository<Membership>,
-    private readonly emailService: EmailService
+    private readonly emailService: EmailService,
+    private readonly screenService: ScreenService
   ) {}
 
   async findAll(
@@ -277,10 +279,12 @@ export class UserService {
         </html>
       `;
 
+    console.log(user.id);
+    await this.screenService.desactivateAllScreens(user.id);
     user.activeMembership = null;
     user.membershipExpirationDate = null;
-    user.employeLimit = null;
-    user.screenLimit = null;
+    user.employeLimit = 0;
+    user.screenLimit = 0;
 
     await this.userRepository.save(user);
 
