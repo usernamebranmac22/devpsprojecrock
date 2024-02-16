@@ -84,7 +84,7 @@ export class StripeService {
         },
       ],
       mode: "payment",
-      success_url: `${configService.get("URL_FRONT_ADMIN")}/screen/success`,
+      success_url: `${configService.get("URL_FRONT_ADMIN")}/screens`,
       cancel_url: `${configService.get("URL_FRONT_ADMIN")}/screen/cancel`,
       metadata: {
         screenName: name,

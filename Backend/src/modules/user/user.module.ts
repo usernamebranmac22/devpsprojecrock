@@ -5,9 +5,14 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "src/entities/user.entity";
 import { Membership } from "src/entities/membership.entity";
 import { EmailModule } from "../email/email.module";
+import { ScreenModule } from "../screen/screen.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Membership]), EmailModule],
+  imports: [
+    TypeOrmModule.forFeature([User, Membership]),
+    EmailModule,
+    ScreenModule,
+  ],
   controllers: [UserController],
   providers: [UserService],
   exports: [UserService],

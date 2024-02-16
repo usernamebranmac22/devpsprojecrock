@@ -7,6 +7,7 @@ import { User } from "src/entities/user.entity";
 import { ROLES } from "src/constants";
 import { EditScreenDto } from "./dto/edit-screen.dto";
 import { randomBytes } from "crypto";
+import { EmailService } from "../email/email.service";
 
 @Injectable()
 export class ScreenService {
@@ -14,11 +15,14 @@ export class ScreenService {
     @InjectRepository(Screen)
     private readonly screenRepository: Repository<Screen>,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    private readonly emailService: EmailService
   ) {}
 
   async findAll() {
-    const screens = await this.screenRepository.find();
+    const screens = await this.screenRepository.find({
+      order: { id: "DESC" },
+    });
     if (!screens) {
       throw new HttpException("Not found", 404);
     }
@@ -28,6 +32,7 @@ export class ScreenService {
   async getAllScreensByCompany(companyId: number): Promise<Screen[]> {
     return this.screenRepository.find({
       where: { company: { id: companyId } },
+      order: { id: "DESC" },
     });
   }
 
@@ -57,21 +62,53 @@ export class ScreenService {
       throw new HttpException("USER_NOT_COMPANY", 403);
     }
 
-    // if (!company.activeMembership) {
-    //   throw new HttpException("NO_MEMBERSHIP_ACTIVE", 403);
-    // }
-
-    // Se debe realizar la validacion de que, si la empresa tiene un limite de pantallas y
-    // ya llego a ese limite, no se le permita crear mas pantallas
-
     const screen = new Screen();
     screen.name = name;
     screen.password = password;
     screen.company = company;
     screen.active = true;
     screen.code = await this.generateUniqueCode();
-
     await this.screenRepository.save(screen);
+
+    const emailContent = `
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+          }
+          p {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+          }
+          strong {
+            color: #007bff;
+          }
+          ul {
+            list-style-type: none;
+            padding: 0;
+          }
+          li {
+            margin-bottom: 5px;
+          }
+        </style>
+      </head>
+      <body>
+        <p>Has adquirido la pantalla: <strong>${screen.name}</strong></p>
+        <p>La Contraseña por defecto asignada es: <b>1234</b></p>
+        <p>Tendras acceso para editar la contraseña o desactivar la pantalla por medio de la consola administrativa</p>
+        <p>¡Gracias por ser parte de nuestro servicio!</p>
+       
+      </body>
+    </html>
+  `;
+    this.emailService.sendEmail(
+      company.email,
+      "Screen Created Successfully",
+      emailContent
+    );
 
     return screen;
   }
@@ -121,8 +158,8 @@ export class ScreenService {
       screen.code = editScreenDto.code;
     }
 
-    if (editScreenDto.active !== undefined) {
-      screen.active = editScreenDto.active;
+    if (editScreenDto.password !== undefined) {
+      screen.password = editScreenDto.password;
     }
 
     // Guardar los cambios en la base de datos
@@ -142,5 +179,56 @@ export class ScreenService {
     await this.screenRepository.save(screen);
 
     return screen;
+  }
+
+  async toggleScreen(id: number, userId: number) {
+    const screen = await this.screenRepository.findOne({ where: { id } });
+
+    if (!screen) {
+      throw new HttpException("SCREEN_NOT_FOUND", 404);
+    }
+
+    const company = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ["screens"],
+    });
+
+    if (!company) {
+      throw new HttpException("COMPANY_NOT_FOUND", 404);
+    }
+
+    const limitScreenActive = company.screenLimit;
+    const activeScreens = company.screens.filter((s) => s.active);
+
+    if (!screen.active) {
+      screen.active = true;
+      activeScreens.push(screen);
+    } else {
+      screen.active = false;
+      const index = activeScreens.findIndex((s) => s.id === screen.id);
+      if (index !== -1) {
+        activeScreens.splice(index, 1);
+      }
+    }
+
+    if (activeScreens.length > limitScreenActive) {
+      throw new HttpException("SCREEN_LIMIT_EXCEEDED", 400);
+    }
+
+    await this.screenRepository.save(screen);
+
+    return screen;
+  }
+
+  async desactivateAllScreens(userId: number): Promise<void> {
+    const screens = await this.getAllScreensByCompany(userId);
+    console.log(screens);
+
+    await Promise.all(
+      screens.map(async (screen) => {
+        screen.active = false;
+        await this.screenRepository.save(screen);
+      })
+    );
   }
 }

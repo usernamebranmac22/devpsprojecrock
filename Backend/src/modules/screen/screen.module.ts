@@ -4,12 +4,10 @@ import { Screen } from "src/entities/screen.entity";
 import { ScreenService } from "./screen.service";
 import { ScreenController } from "./screen.controller";
 import { User } from "src/entities/user.entity";
+import { EmailModule } from "../email/email.module";
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Screen, User]),
- 
-  ],
+  imports: [TypeOrmModule.forFeature([Screen, User]), EmailModule],
   controllers: [ScreenController],
   providers: [ScreenService],
   exports: [ScreenService],
