@@ -1,34 +1,49 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { PlayListCompanyService } from './play_list_company.service';
-import { CreatePlayListCompanyDto } from './dto/create-play_list_company.dto';
-import { UpdatePlayListCompanyDto } from './dto/update-play_list_company.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseIntPipe,
+} from "@nestjs/common";
+import { PlayListCompanyService } from "./play_list_company.service";
+import { CreatePlayListCompanyDto } from "./dto/create-play_list_company.dto";
+import { UpdatePlayListCompanyDto } from "./dto/update-play_list_company.dto";
+import { QueryPlayListDto } from "./dto/query-playlist.dto";
 
-@Controller('play-list-company')
+@Controller("play-list-company")
 export class PlayListCompanyController {
-  constructor(private readonly playListCompanyService: PlayListCompanyService) {}
+  constructor(
+    private readonly playListCompanyService: PlayListCompanyService
+  ) {}
 
-  @Post()
-  create(@Body() createPlayListCompanyDto: CreatePlayListCompanyDto) {
-    return this.playListCompanyService.create(createPlayListCompanyDto);
+  @Get(":codeScreen")
+  findByCodeScreen(
+    @Param("codeScreen") codeScreen: string,
+    @Query() query: QueryPlayListDto
+  ) {
+    return this.playListCompanyService.findByCodeScreen(codeScreen, query);
   }
 
-  @Get()
-  findAll() {
-    return this.playListCompanyService.findAll();
+  @Get("/company/:idCompany")
+  findByCompany(
+    @Param("idCompany") idCompany: number,
+    @Query() query: QueryPlayListDto
+  ) {
+    return this.playListCompanyService.findByIdCompany(idCompany, query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.playListCompanyService.findByIdCompany(+id);
-  }
-
-  @Patch(':idPlaylist')
-  update(@Param('idPlaylist') idPlaylist: string, @Body() updatePlayListCompanyDto: UpdatePlayListCompanyDto) {
-    return this.playListCompanyService.update(+idPlaylist, updatePlayListCompanyDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.playListCompanyService.remove(+id);
+  @Patch(":idPlaylist")
+  update(
+    @Param("idPlaylist", ParseIntPipe) idPlaylist: string,
+    @Body() updatePlayListCompanyDto: UpdatePlayListCompanyDto
+  ) {
+    return this.playListCompanyService.update(
+      +idPlaylist,
+      updatePlayListCompanyDto
+    );
   }
 }

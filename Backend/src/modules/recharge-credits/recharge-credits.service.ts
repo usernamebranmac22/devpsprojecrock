@@ -32,8 +32,9 @@ export class RechargeCreditsService {
 
       await this.transctionService.create({
         idUser: user.id,
-        type: user.type,
+        type: 1,
         amount: rechargeCreditDto.mount,
+        description: "Recarga de rockobits",
       });
 
       return {

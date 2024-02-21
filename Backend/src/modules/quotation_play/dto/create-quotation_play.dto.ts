@@ -2,8 +2,11 @@ import { IsNumber, IsString } from "class-validator";
 
 export class CalculatePriceDto {
   @IsString()
-  idVideo: string;
+  idVideos: string;
 
-  @IsNumber()
-  idScreen: number;
+  @IsString()
+  codeScreen: string;
+
+  @IsString()
+  durations: string;
 }

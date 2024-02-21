@@ -1,44 +1,65 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { MODEPLAY } from 'src/constants';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { MODEPLAY } from "src/constants";
+import { State } from "./state.entity";
+import { City } from "./city.entity";
+import { Country } from "./country.entity";
+import { STATES_VIDEO_IN_PLAYLIST } from "src/constants/orderPlaylist.enum";
 
-@Entity('r_play_list_companys')
+@Entity("playlist")
 export class PlayListCompany extends BaseEntity {
-  @PrimaryGeneratedColumn('increment')
-  r_id: number;
+  @PrimaryGeneratedColumn("increment")
+  id: number;
 
-  @Column({ type: 'varchar', nullable: false })
-  r_id_video: string;
+  @Column({ type: "varchar", nullable: false })
+  id_video: string;
 
-  @Column({ type: 'int', nullable: false })
-  r_id_company: number;
+  @Column({ type: "int", nullable: false })
+  id_company: number;
 
-  @Column({ type: 'int' })
-  r_id_user: number;
+  @Column({ type: "int" })
+  id_user: number;
 
-  @Column({ type: 'enum', enum: MODEPLAY })
-  r_order: MODEPLAY;
+  @Column({ type: "enum", enum: STATES_VIDEO_IN_PLAYLIST, nullable: true })
+  state_music: STATES_VIDEO_IN_PLAYLIST;
 
-  @Column({ type: 'text' })
-  r_duration: string;
+  @Column({ nullable: true })
+  codeScreen: string;
 
-  @Column({ type: 'int' })
-  r_state: number;
+  @ManyToOne(() => Country)
+  @JoinColumn()
+  country: Country;
 
-  @Column({ type: 'varchar' })
-  r_title: string;
+  @ManyToOne(() => State)
+  @JoinColumn()
+  state: State;
 
-  @Column({ type: 'varchar' })
-  r_description: string;
+  @ManyToOne(() => City)
+  @JoinColumn()
+  city: City;
 
-  @Column({ type: 'varchar' })
-  r_thumbnails_default: string;
+  @Column({ type: "int", nullable: true })
+  typeModeplay: number;
 
-  @Column({ type: 'varchar' })
-  r_thumbnails_medium: string;
+  @Column({ nullable: true })
+  title: string;
 
-  @Column({ type: 'varchar' })
-  r_thumbnails_high: string;
+  @Column({ nullable: true })
+  channelTitle: string;
 
-  @Column({ type: 'boolean' })
-  fullScreen: boolean;
+  @Column({ nullable: true })
+  thumbnail: string;
+
+  @Column({ nullable: true })
+  duration: number;
+
+  @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  createdAt: Date;
 }

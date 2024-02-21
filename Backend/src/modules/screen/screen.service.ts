@@ -47,6 +47,21 @@ export class ScreenService {
     }
     return screen;
   }
+  async getScreenByCode(code: string): Promise<Screen> {
+    const screen = await this.screenRepository.findOne({
+      where: { code },
+      relations: [
+        "company",
+        "company.country",
+        "company.state",
+        "company.city",
+      ],
+    });
+    if (!screen) {
+      throw new HttpException("SCREEN_NOT_FOUND", 404);
+    }
+    return screen;
+  }
 
   async createScreen(objectCreate: CreateScreenDto) {
     const { idCompany, name, password } = objectCreate;
