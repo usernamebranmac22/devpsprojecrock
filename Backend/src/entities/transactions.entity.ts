@@ -23,12 +23,8 @@ export class Transaction extends BaseEntity {
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
-  // @Author: alejandro morales
-  @Column({ type: "int", nullable: true })
-  companyId: number | null;
-
   @Column({ nullable: true })
-  videoId: string | null;
+  description: string | null;
 
   @BeforeInsert()
   setCreationDate() {

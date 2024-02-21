@@ -61,7 +61,7 @@ export class User extends BaseEntity {
   @Column({ type: "varchar", nullable: false })
   logo: string;
 
-  @Column({ type: "varchar", nullable: false })
+  @Column({ type: "varchar", nullable: false, unique: true })
   phone: string;
 
   @Column({ type: "date", nullable: true })
@@ -128,5 +128,4 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   screenLimit: number;
-
 }

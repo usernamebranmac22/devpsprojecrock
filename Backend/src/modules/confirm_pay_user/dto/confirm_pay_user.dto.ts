@@ -1,16 +1,17 @@
+// confirm_pay_user.dto.ts
 import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { MODEPLAY } from "src/constants";
 
 export class ConfirmPayUserDto {
   @IsString()
-  idVideo: string;
+  idVideos: string; 
 
-  @IsNumber()
-  idCompany: number;
+  @IsString()
+  codeScreen: string;
 
   @IsNumber()
   idUser: number;
 
-  @IsNumber()
-  typeCompany: number;
+  @IsString()
+  typeModeplays: string; 
 }

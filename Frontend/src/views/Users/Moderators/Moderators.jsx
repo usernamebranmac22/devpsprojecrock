@@ -40,7 +40,7 @@ const Companies = () => {
         setLoading(true);
         const response = await api.get("/user", {
           params: {
-            type: 23,
+            type: 18,
             take: rowsPerPage,
             skip: page * rowsPerPage,
             searchTerm: searchTerm?.trim() ? searchTerm : undefined,

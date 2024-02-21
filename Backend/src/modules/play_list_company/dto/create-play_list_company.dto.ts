@@ -3,9 +3,13 @@ import {
   IsBoolean,
   IsEnum,
   IsNumber,
-  IsString
-} from 'class-validator';
-import { MODEPLAY } from 'src/constants';
+  IsObject,
+  IsString,
+} from "class-validator";
+import { MODEPLAY } from "src/constants";
+import { City } from "src/entities/city.entity";
+import { Country } from "src/entities/country.entity";
+import { State } from "src/entities/state.entity";
 
 export class CreatePlayListCompanyDto {
   @IsString()
@@ -17,30 +21,36 @@ export class CreatePlayListCompanyDto {
   @IsNumber()
   idUser: number;
 
-  @IsEnum(MODEPLAY)
-  order: MODEPLAY;
-
-  @IsString()
-  duration: string;
+  //  @IsString()
+  //  duration: string;
 
   @IsNumber()
-  state: number;
+  state_music: number;
+
+  @IsString()
+  codeScreen: string;
+
+  @IsObject()
+  country: Country;
+
+  @IsObject()
+  state: State;
+
+  @IsObject()
+  city: City;
+
+  @IsNumber()
+  typeModeplay: number;
 
   @IsString()
   title: string;
 
   @IsString()
-  description: string;
+  channelTitle: string;
 
   @IsString()
-  thumbnailsDefault: string;
+  thumbnail: string;
 
   @IsString()
-  thumbnailsMedium: string;
-
-  @IsString()
-  thumbnailsHigh: string;
-
-  @IsBoolean()
-  fullScreen: boolean;
+  duration: number;
 }

@@ -26,7 +26,7 @@ export class WalletService {
         throw new HttpException("USER_NOT_FOUND", 400);
       }
 
-      const initialAmount = 20;
+      const initialAmount = 10000;
       const encryptedAmount = this.cryptoService.encrypt(
         initialAmount.toString()
       );

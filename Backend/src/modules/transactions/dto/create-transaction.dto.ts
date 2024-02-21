@@ -1,5 +1,5 @@
-import { IsNumber, IsString } from "class-validator";
-import { User } from "src/entities/user.entity";
+import { IsEnum, IsNumber, IsString } from "class-validator";
+import { TYPE_TRANSACTION } from "src/constants/typeTransaction.enum";
 
 export class CreateTransactionDto {
   @IsNumber()
@@ -8,10 +8,9 @@ export class CreateTransactionDto {
   @IsNumber()
   amount: number;
 
-  @IsNumber()
-  type: number;
+  @IsEnum(TYPE_TRANSACTION)
+  type: TYPE_TRANSACTION;
 
-  companyId?: number;
-
-  videoId?: string;
+  @IsString()
+  description: string;
 }

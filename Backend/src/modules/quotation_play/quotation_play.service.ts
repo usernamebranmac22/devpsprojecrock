@@ -27,41 +27,30 @@ export class QuotationPlayService {
 
   async calculatePrice(createQuotationPlayDto: CalculatePriceDto) {
     try {
-      const screen = await this.screenService.getScreenById(
-        createQuotationPlayDto.idScreen
+      const screen = await this.screenService.getScreenByCode(
+        createQuotationPlayDto.codeScreen
       );
-
+  
       if (!screen) throw new HttpException("SCREEN_NOT_FOUND", 404);
       const company = screen.company;
       if (!company) throw new HttpException("COMPANY_NOT_FOUND", 404);
-
+  
       const modeplays = await this.modeplayService.findAll();
-      const idVideos = createQuotationPlayDto.idVideo.split(",");
-
+      const idVideos = createQuotationPlayDto.idVideos.split(",");
+      const durations = createQuotationPlayDto.durations.split(",");
+  
       const prices = await Promise.all(
-        idVideos.map(async (idVideo) => {
+        idVideos.map(async (idVideo, index) => {
           try {
-            const duration = await this.youtubeService.getDuration(idVideo);
-            const videoDetails =
-              await this.youtubeService.getVideoDetails(idVideo);
-
+            const duration = parseInt(durations[index]); // Obtener la duración desde el array de duraciones
+  
             const price = calculatePriceByDuration(duration);
             return {
               VIDEO: {
-                details: {
-                  id: idVideo,
-                  thumbnails: {
-                    default: videoDetails.snippet.thumbnails.default.url,
-                    medium: videoDetails.snippet.thumbnails.medium.url,
-                    high: videoDetails.snippet.thumbnails.high.url,
-                  },
-                  chanelTitle: videoDetails.snippet.channelTitle,
-                  title: videoDetails.snippet.title,
-                },
+                id: idVideo,
                 costs: {
                   [NAME_MODEPLAY.PLATINUM]: {
                     price: price * COST_MODEPLAY.PLATINUM,
-                
                     type: MODEPLAY.PLATINUM,
                   },
                   [NAME_MODEPLAY.VIP]: {
@@ -77,15 +66,13 @@ export class QuotationPlayService {
               },
             };
           } catch (error) {
-            console.error(
-              `Error al procesar el video con ID ${idVideo}:`,
-              error
-            );
+            console.error(`Error al procesar el video con ID ${idVideo}:`, error);
             return null;
           }
         })
       );
-
+  
+      //! Devolverá el saldo que el cliente podrá gastar en el establecimiento (rockobits).
       return {
         message: "Ok",
         data: {
@@ -98,4 +85,5 @@ export class QuotationPlayService {
       throw new HttpException(error, 400);
     }
   }
+  
 }

@@ -13,12 +13,13 @@ export class TransactionsService {
 
   async create(createTransactionDto: CreateTransactionDto) {
     try {
-      const { idUser, amount, type } = createTransactionDto;
+      const { idUser, amount, type, description } = createTransactionDto;
 
       const transaction = await this.transactionsRepository.save({
         idUser: idUser,
         amount: amount,
         type: type,
+        description: description,
       });
 
       return {
@@ -26,33 +27,26 @@ export class TransactionsService {
         idUser: transaction.idUser,
         amount: transaction.amount,
         type: transaction.type,
+        description: transaction.description,
         date: transaction.createdAt,
       };
     } catch (error) {
       throw new HttpException(error, 400);
     }
   }
+
   async createForPayMusic(createTransactionDto: CreateTransactionDto) {
     try {
-      const { idUser, amount, type, companyId, videoId } = createTransactionDto;
+      const { idUser, amount, type } = createTransactionDto;
 
       const transaction = await this.transactionsRepository.save({
         idUser: idUser,
         amount: amount,
         type: type,
-        companyId: companyId,
-        videoId: videoId,
+        description: createTransactionDto.description,
       });
 
-      return {
-        id: transaction.id,
-        idUser: transaction.idUser,
-        amount: transaction.amount,
-        type: transaction.type,
-        companyId: companyId,
-        videoId: videoId,
-        date: transaction.createdAt,
-      };
+      return transaction;
     } catch (error) {
       throw new HttpException(error, 400);
     }
