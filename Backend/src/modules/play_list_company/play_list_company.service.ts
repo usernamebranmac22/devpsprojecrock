@@ -7,6 +7,7 @@ import { Repository } from "typeorm";
 import { User } from "src/entities/user.entity";
 import { STATES_VIDEO_IN_PLAYLIST } from "src/constants/orderPlaylist.enum";
 import { QueryPlayListDto } from "./dto/query-playlist.dto";
+import { ScreenService } from "../screen/screen.service";
 
 @Injectable()
 export class PlayListCompanyService {
@@ -14,7 +15,8 @@ export class PlayListCompanyService {
     @InjectRepository(PlayListCompany)
     private readonly playListCompanyRepository: Repository<PlayListCompany>,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    private readonly screenService: ScreenService
   ) {}
 
   async create(createPlayListCompanyDto: CreatePlayListCompanyDto) {
@@ -99,6 +101,13 @@ export class PlayListCompanyService {
     //! Validacion de si la Screen esta Activa / No Activa
     //! Validacion si la empresa tiene una Membresia Activa.
 
+    const screen = await this.screenService.getScreenByCode(codeScreen);
+    const company = screen.company;
+
+    if (!screen.active) throw new HttpException("SCREEN_NOT_ACTIVE", 500);
+    if (!company.membershipExpirationDate)
+      throw new HttpException("COMPANY_NOT_HAVE_MEMBERSHIP", 500);
+
     const playlist = await this.playListCompanyRepository.find({
       where: { codeScreen },
     });
@@ -165,5 +174,12 @@ export class PlayListCompanyService {
         codeScreen: playList.codeScreen,
       },
     };
+  }
+
+  async banVideosByCodeScreen(codeScreen: string) {
+    await this.playListCompanyRepository.update(
+      { codeScreen, state_music: STATES_VIDEO_IN_PLAYLIST.PENDIENTE },
+      { state_music: STATES_VIDEO_IN_PLAYLIST.BANEADO }
+    );
   }
 }

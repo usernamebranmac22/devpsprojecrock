@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { Repository, SelectQueryBuilder } from "typeorm";
+import { DeepPartial, Repository, SelectQueryBuilder } from "typeorm";
 import { ILike } from "typeorm";
 import { User } from "src/entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -10,15 +10,20 @@ import { Membership } from "src/entities/membership.entity";
 import { EmailService } from "../email/email.service";
 import getBenefits from "src/utils/getBenefits";
 import { ScreenService } from "../screen/screen.service";
+import { PlayListCompanyService } from "../play_list_company/play_list_company.service";
+import { Screen } from "src/entities/screen.entity";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(Screen)
+    private readonly screenRepository: Repository<Screen>,
     @InjectRepository(Membership)
     private readonly membershipRepository: Repository<Membership>,
     private readonly emailService: EmailService,
-    private readonly screenService: ScreenService
+    private readonly screenService: ScreenService,
+    private readonly playlistService: PlayListCompanyService
   ) {}
 
   async findAll(
@@ -279,13 +284,20 @@ export class UserService {
         </html>
       `;
 
-    console.log(user.id);
-    await this.screenService.desactivateAllScreens(user.id);
+    const screens = await this.screenService.getAllScreensByCompany(user.id);
+
+    await Promise.all(
+      screens.map(async (screen) => {
+        screen.active = false;
+        await this.screenRepository.save(screen);
+        this.playlistService.banVideosByCodeScreen(screen.code);
+      })
+    );
+
     user.activeMembership = null;
     user.membershipExpirationDate = null;
     user.employeLimit = 0;
     user.screenLimit = 0;
-
     await this.userRepository.save(user);
 
     this.emailService.sendEmail(

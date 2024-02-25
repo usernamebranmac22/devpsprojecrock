@@ -30,20 +30,20 @@ export class QuotationPlayService {
       const screen = await this.screenService.getScreenByCode(
         createQuotationPlayDto.codeScreen
       );
-  
+
       if (!screen) throw new HttpException("SCREEN_NOT_FOUND", 404);
       const company = screen.company;
       if (!company) throw new HttpException("COMPANY_NOT_FOUND", 404);
-  
+
       const modeplays = await this.modeplayService.findAll();
       const idVideos = createQuotationPlayDto.idVideos.split(",");
       const durations = createQuotationPlayDto.durations.split(",");
-  
+
       const prices = await Promise.all(
         idVideos.map(async (idVideo, index) => {
           try {
-            const duration = parseInt(durations[index]); // Obtener la duración desde el array de duraciones
-  
+            const duration = parseInt(durations[index]);
+
             const price = calculatePriceByDuration(duration);
             return {
               VIDEO: {
@@ -66,12 +66,15 @@ export class QuotationPlayService {
               },
             };
           } catch (error) {
-            console.error(`Error al procesar el video con ID ${idVideo}:`, error);
+            console.error(
+              `Error al procesar el video con ID ${idVideo}:`,
+              error
+            );
             return null;
           }
         })
       );
-  
+
       //! Devolverá el saldo que el cliente podrá gastar en el establecimiento (rockobits).
       return {
         message: "Ok",
@@ -85,5 +88,4 @@ export class QuotationPlayService {
       throw new HttpException(error, 400);
     }
   }
-  
 }

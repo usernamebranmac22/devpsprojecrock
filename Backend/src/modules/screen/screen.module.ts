@@ -5,9 +5,10 @@ import { ScreenService } from "./screen.service";
 import { ScreenController } from "./screen.controller";
 import { User } from "src/entities/user.entity";
 import { EmailModule } from "../email/email.module";
+import { PlayListCompany } from "src/entities/playListCompany.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Screen, User]), EmailModule],
+  imports: [TypeOrmModule.forFeature([Screen, User, PlayListCompany]), EmailModule],
   controllers: [ScreenController],
   providers: [ScreenService],
   exports: [ScreenService],
