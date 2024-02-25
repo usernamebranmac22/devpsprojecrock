@@ -64,7 +64,6 @@ export class ScreenController {
 
   @Patch("toggle/:id")
   async toggleScreen(@Param("id") id: number, @Body() { userId }) {
-    console.log(id);
     const screen = await this.screenService.toggleScreen(id, userId);
     return { message: "ok", data: screen };
   }

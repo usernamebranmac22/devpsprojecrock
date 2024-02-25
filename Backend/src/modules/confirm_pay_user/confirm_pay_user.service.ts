@@ -34,25 +34,26 @@ export class ConfirmPayUserService {
         where: { id: confirmPayUserDto.idUser },
         relations: ["wallet"],
       });
-      if (!user) return new HttpException("USER_NOT_FOUND", 404);
+      if (!user) throw new HttpException("USER_NOT_FOUND", 404);
       if (user.type !== ROLES.CLIENTE)
-        return new HttpException("USER_NOT_CLIENT", 400);
+        throw new HttpException("USER_NOT_CLIENT", 400);
 
       const screen = await this.screenService.getScreenByCode(
         confirmPayUserDto.codeScreen
       );
-      if (!screen) return new HttpException("COMPANY_NOT_FOUND", 404);
+      if (!screen) throw new HttpException("SCREEN_NOT_FOUND", 404);
       const company = screen.company;
+      if (!company) throw new HttpException("COMPANY_NOT_FOUND", 404);
 
+      // Verificar si la empresa tiene membresía.
+      if (!company.membershipExpirationDate)
+        throw new HttpException("COMPANY_NOT_HAVE_MEMBERSHIP", 500);
+
+      // Verificar si la pantalla está activa.
       if (!screen.active) {
-        return new HttpException("SCREEN_NOT_ACTIVE", 500);
+        throw new HttpException("SCREEN_NOT_ACTIVE", 500);
       }
-
-      //! Validacion de si la Screen esta Activa / No Activa
-      //! Validacion si la empresa tiene una Membresia Activa. 
-
-
-
+      // Verificar si el usuario tiene su wallet bloqueada.
       if (user.state_Wallet === 0) {
         const idVideos = confirmPayUserDto.idVideos.split(",");
         const typeCompanies = confirmPayUserDto.typeModeplays.split(",");
@@ -119,12 +120,16 @@ export class ConfirmPayUserService {
 
           return { message: "Pago exitoso", turn: 1 };
         } else {
-          return new HttpException("INSUFFICIENT_CREDITS", 500);
+          throw new HttpException("INSUFFICIENT_CREDITS", 500);
         }
+      } else {
+        throw new HttpException("WALLET_NOT_AVAILABLE", 500);
       }
     } catch (error) {
-      console.error(error);
-      return new HttpException("INTERNAL_SERVER_ERROR", 500);
+      throw new HttpException(
+        error.message || "Internal server error",
+        error.getStatus() || 500
+      );
     }
   }
 }

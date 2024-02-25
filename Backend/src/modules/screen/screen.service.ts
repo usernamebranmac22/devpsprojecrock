@@ -8,12 +8,15 @@ import { ROLES } from "src/constants";
 import { EditScreenDto } from "./dto/edit-screen.dto";
 import { randomBytes } from "crypto";
 import { EmailService } from "../email/email.service";
+import { PlayListCompany } from "src/entities/playListCompany.entity";
 
 @Injectable()
 export class ScreenService {
   constructor(
     @InjectRepository(Screen)
     private readonly screenRepository: Repository<Screen>,
+    @InjectRepository(PlayListCompany)
+    private readonly playlistRepository: Repository<PlayListCompany>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly emailService: EmailService
@@ -215,6 +218,14 @@ export class ScreenService {
     const limitScreenActive = company.screenLimit;
     const activeScreens = company.screens.filter((s) => s.active);
 
+    //!VALIDACION SI LA PANTALLA TIENE VIDEOS PENDIENTES NO PERMITA DESACTIVAR
+    const pendingVideos = await this.playlistRepository.count({
+      where: { codeScreen: screen.code, state_music: 0 },
+    });
+    if (pendingVideos > 0) {
+      throw new HttpException("SCREEN_HAS_PENDING_VIDEOS", 400);
+    }
+
     if (!screen.active) {
       screen.active = true;
       activeScreens.push(screen);
@@ -233,17 +244,5 @@ export class ScreenService {
     await this.screenRepository.save(screen);
 
     return screen;
-  }
-
-  async desactivateAllScreens(userId: number): Promise<void> {
-    const screens = await this.getAllScreensByCompany(userId);
-    console.log(screens);
-
-    await Promise.all(
-      screens.map(async (screen) => {
-        screen.active = false;
-        await this.screenRepository.save(screen);
-      })
-    );
   }
 }
