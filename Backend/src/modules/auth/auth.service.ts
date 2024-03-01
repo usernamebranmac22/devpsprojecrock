@@ -101,7 +101,7 @@ export class AuthService {
         if (type === ROLES.EMPRESA) {
           await this.screenService.createDefaultScreen(user);
         }
-        
+
         const wallet = await this.walletService.createWalletForUser(user.id);
         user.wallet = wallet;
         await this.userRepository.save(user);

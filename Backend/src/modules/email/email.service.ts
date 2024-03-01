@@ -13,7 +13,7 @@ export class EmailService {
       secure: true,
       auth: {
         user: "equiporockola@psrockola.com",
-        pass: "2j+o9vC3k7}r",
+        pass: "VF}I$m5lJDY] ",
       },
     });
   }

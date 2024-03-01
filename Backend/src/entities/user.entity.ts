@@ -61,7 +61,7 @@ export class User extends BaseEntity {
   @Column({ type: "varchar", nullable: false })
   logo: string;
 
-  @Column({ type: "varchar", nullable: false, unique: true })
+  @Column({ type: "varchar", nullable: false })
   phone: string;
 
   @Column({ type: "date", nullable: true })
