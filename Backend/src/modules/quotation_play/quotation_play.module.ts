@@ -6,6 +6,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { YoutubeModule } from "../youtube/youtube.module";
 import { ModeplayModule } from "../modeplay/modeplay.module";
 import { ScreenModule } from "../screen/screen.module";
+import { PlayListCompanyModule } from "../play_list_company/play_list_company.module";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ScreenModule } from "../screen/screen.module";
     YoutubeModule,
     ModeplayModule,
     ScreenModule,
+    PlayListCompanyModule
   ],
   controllers: [QuotationPlayController],
   providers: [QuotationPlayService],

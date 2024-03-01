@@ -9,12 +9,11 @@ import {
   MODEPLAY,
   NAME_MODEPLAY,
 } from "src/constants/modePlay.enum";
-import { ROLES } from "src/constants";
 import { ModeplayService } from "../modeplay/modeplay.service";
 import convertMilisecondsToTime from "src/utils/convertMilisecondsToTime";
 import calculatePriceByDuration from "src/utils/calculatePriceByDuration";
 import { ScreenService } from "../screen/screen.service";
-import { title } from "process";
+import { PlayListCompanyService } from "../play_list_company/play_list_company.service";
 
 @Injectable()
 export class QuotationPlayService {
@@ -22,7 +21,8 @@ export class QuotationPlayService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly youtubeService: YoutubeService,
     private readonly modeplayService: ModeplayService,
-    private readonly screenService: ScreenService
+    private readonly screenService: ScreenService,
+    private readonly playListCompanyService: PlayListCompanyService
   ) {}
 
   async calculatePrice(createQuotationPlayDto: CalculatePriceDto) {
@@ -34,6 +34,39 @@ export class QuotationPlayService {
       if (!screen) throw new HttpException("SCREEN_NOT_FOUND", 404);
       const company = screen.company;
       if (!company) throw new HttpException("COMPANY_NOT_FOUND", 404);
+
+      const playlist = await this.playListCompanyService.findByCodeScreen(
+        screen.code
+      );
+
+      const getNameModeplayByType = (typeModeplay: number): string => {
+        switch (typeModeplay) {
+          case MODEPLAY.PLATINUM:
+            return NAME_MODEPLAY.PLATINUM;
+          case MODEPLAY.VIP:
+            return NAME_MODEPLAY.VIP;
+          case MODEPLAY.NORMAL:
+            return NAME_MODEPLAY.NORMAL;
+          default:
+            return ""; // O manejar otro caso si es necesario
+        }
+      };
+
+      console.log(playlist.data.videos);
+      const videoCountsByType = {
+        [NAME_MODEPLAY.PLATINUM]: 0,
+        [NAME_MODEPLAY.VIP]: 0,
+        [NAME_MODEPLAY.NORMAL]: 0,
+      };
+
+      playlist.data.videos.forEach((video) => {
+        const { typeModeplay } = video;
+        const modeplayName = getNameModeplayByType(typeModeplay); // Asegúrate de tener esta función
+
+        if (modeplayName in videoCountsByType) {
+          videoCountsByType[modeplayName]++;
+        }
+      });
 
       const modeplays = await this.modeplayService.findAll();
       const idVideos = createQuotationPlayDto.idVideos.split(",");
@@ -81,6 +114,7 @@ export class QuotationPlayService {
         data: {
           prices,
           company,
+          counts: videoCountsByType,
         },
       };
     } catch (error) {
