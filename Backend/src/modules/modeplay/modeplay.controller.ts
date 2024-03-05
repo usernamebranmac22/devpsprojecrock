@@ -30,4 +30,12 @@ export class ModeplayController {
   findOne(@Param("id") id: string) {
     return this.modeplayService.findOne(Number(id));
   }
+
+  @Patch(":id")
+  update(
+    @Param("id") id: number,
+    @Body() updateModeplayDto: { value: number }
+  ) {
+    return this.modeplayService.update(Number(id), updateModeplayDto);
+  }
 }

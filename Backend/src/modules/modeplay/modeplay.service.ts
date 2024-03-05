@@ -48,4 +48,24 @@ export class ModeplayService {
     }
     return modePlay;
   }
+
+  async update(id: number, updateModeplayDto: { value: number }) {
+    const { value } = updateModeplayDto;
+
+    const modePlay = await this.modePlayRepository.findOne({
+      where: { id: id },
+    });
+
+    if (!modePlay) {
+      throw new HttpException("MODE_PLAY_NOT_FOUND", 404);
+    }
+
+    const modePlayUpdated = await this.modePlayRepository.save({
+      ...modePlay,
+      value,
+    });
+
+    return modePlayUpdated;
+  }
+    
 }
