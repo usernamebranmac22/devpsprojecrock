@@ -12,15 +12,15 @@ export class EmailService {
       port: 465,
       secure: true,
       auth: {
-        user: "equiporockola@psrockola.com",
-        pass: "VF}I$m5lJDY] ",
+        user: "equipopsrockola@psrockola.com",
+        pass: "ax@U[w203x(J",
       },
     });
   }
 
   async sendEmail(to: string, subject: string, html: string) {
     const mailOptions = {
-      from: "equiporockola@psrockola.com",
+      from: "equipopsrockola@psrockola.com",
       to,
       subject,
       html,

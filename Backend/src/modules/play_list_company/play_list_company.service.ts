@@ -139,10 +139,10 @@ export class PlayListCompanyService {
   }
 
   async update(id: number, updatePlayListCompanyDto: UpdatePlayListCompanyDto) {
-    const playList = await this.playListCompanyRepository.findOne({
+    const video = await this.playListCompanyRepository.findOne({
       where: { id },
     });
-    if (!playList) {
+    if (!video) {
       throw new HttpException("VIDEO_NOT_FOUND", 404);
     }
 
@@ -153,27 +153,65 @@ export class PlayListCompanyService {
       throw new HttpException("COMPANY_NOT_FOUND", 404);
     }
 
+    //!aca
+    const playlist = await (
+      await this.findByCodeScreen(updatePlayListCompanyDto.codeScreen)
+    ).data.videos;
+    if (!playlist) {
+      throw new HttpException("PLAYLIST_NOT_FOUND", 404);
+    }
+
     //!Evaluamos que el usuario que realiza la petición sea el mismo que creo la playlist(sin token)
-    if (company.id !== playList.id_company) {
-      throw new HttpException("NOT_ACCESS ", 400);
+    if (company.id !== video.id_company) {
+      throw new HttpException("NOT_ACCESS", 400);
     }
 
     //if (playList.state_music === 2) {
     // throw new HttpException("La playlist esta finalizada", 400);
     //}
 
-    await this.playListCompanyRepository.update(id, {
-      state_music: updatePlayListCompanyDto.state,
-    });
+    if (updatePlayListCompanyDto.state == 2) {
+      console.log(
+        `Aqui se finaliza el video ${id} y se actualiza el estado de el video a 2 y el segundo video pasa de 0 a 1`
+      );
+      await this.playListCompanyRepository.update(id, {
+        state_music: 2,
+      });
 
-    return {
-      message: "Ok",
-      data: {
-        idPlaylist: id,
-        state: updatePlayListCompanyDto.state,
-        codeScreen: playList.codeScreen,
-      },
-    };
+      const nextVideo = playlist.find((video) => video.state_music === 0); // Busca el siguiente video en la playlist que esté pendiente
+      if (nextVideo) {
+        await this.playListCompanyRepository.update(nextVideo.id, {
+          state_music: 1,
+        });
+      }
+
+      const playlistActualizada = await this.findByCodeScreen(
+        updatePlayListCompanyDto.codeScreen
+      );
+
+      return {
+        message: "Ok",
+        data: {
+          idPlaylist: id,
+          state: updatePlayListCompanyDto.state,
+          codeScreen: video.codeScreen,
+          nextVideoId: nextVideo?nextVideo.id:null,
+          playlist: playlistActualizada.data.videos,
+        },
+      };
+    } else {
+      await this.playListCompanyRepository.update(id, {
+        state_music: updatePlayListCompanyDto.state,
+      });
+      return {
+        message: "Ok",
+        data: {
+          idPlaylist: id,
+          state: updatePlayListCompanyDto.state,
+          codeScreen: video.codeScreen,
+        },
+      };
+    }
   }
 
   async banVideosByCodeScreen(codeScreen: string) {
