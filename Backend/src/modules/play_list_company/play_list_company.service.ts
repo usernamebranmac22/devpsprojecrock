@@ -8,6 +8,7 @@ import { User } from "src/entities/user.entity";
 import { STATES_VIDEO_IN_PLAYLIST } from "src/constants/orderPlaylist.enum";
 import { QueryPlayListDto } from "./dto/query-playlist.dto";
 import { ScreenService } from "../screen/screen.service";
+import * as ytdl from "ytdl-core";
 
 @Injectable()
 export class PlayListCompanyService {
@@ -195,7 +196,7 @@ export class PlayListCompanyService {
           idPlaylist: id,
           state: updatePlayListCompanyDto.state,
           codeScreen: video.codeScreen,
-          nextVideoId: nextVideo?nextVideo.id:null,
+          nextVideoId: nextVideo ? nextVideo.id : null,
           playlist: playlistActualizada.data.videos,
         },
       };
@@ -219,5 +220,24 @@ export class PlayListCompanyService {
       { codeScreen, state_music: STATES_VIDEO_IN_PLAYLIST.PENDIENTE },
       { state_music: STATES_VIDEO_IN_PLAYLIST.BANEADO }
     );
+  }
+
+  async getVideoFileUrl(videoId: string): Promise<string> {
+    try {
+      const info = await ytdl.getInfo(videoId);
+      const format = ytdl.chooseFormat(info.formats, {
+        quality: "highestvideo",
+      });
+
+      if (format && format.url) {
+        return format.url;
+      } else {
+        throw new Error("No se pudo obtener la URL del archivo de video.");
+      }
+    } catch (error) {
+      throw new Error(
+        `Error al obtener la información del video: ${error.message}`
+      );
+    }
   }
 }
