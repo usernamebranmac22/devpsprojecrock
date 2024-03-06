@@ -24,6 +24,7 @@ import { StripeModule } from "./modules/stripe/stripe.module";
 import { MembershipModule } from "./modules/membership/membership.module";
 import { EmployeeModule } from "./modules/employee/employee.module";
 import { ScreenModule } from "./modules/screen/screen.module";
+import { PackageRockobitsModule } from "./modules/package-rockobits/package-rockobits.module";
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { ScreenModule } from "./modules/screen/screen.module";
     MembershipModule,
     EmployeeModule,
     ScreenModule,
+    PackageRockobitsModule
   ],
   providers: [
     {

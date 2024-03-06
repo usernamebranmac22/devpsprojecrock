@@ -33,7 +33,8 @@ export class MembershipService {
         price = await this.StripeService.createStripePrice(
           name,
           amount,
-          currency
+          currency,
+          "membership"
         );
       } catch (stripeError) {
         console.log(stripeError.response);

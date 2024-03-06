@@ -9,8 +9,6 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { StripeService } from "./stripe.service";
-import { ScreenService } from "../screen/screen.service";
-import { parse } from "path";
 import { UserService } from "../user/user.service";
 
 @Controller("stripe")
@@ -46,8 +44,7 @@ export class StripeController {
     console.log(company);
     const screenLimitCompany = company.data.screenLimit;
     const screenLength = company.data.screens.length;
-    console.log(`screenLength: ${screenLength}`);
-    console.log(`screenLimitCompany: ${screenLimitCompany}`);
+
 
     if (screenLength >= screenLimitCompany) {
       throw new HttpException("SCREEN_LIMIT_EXCEEDED", 400);
@@ -78,7 +75,6 @@ export class StripeController {
     @Headers("stripe-signature") signature: string,
     @Req() request: any
   ) {
-    console.log("Hola estan en el webhook");
     try {
       if (!signature) {
         throw new BadRequestException("Missing stripe-signature header");

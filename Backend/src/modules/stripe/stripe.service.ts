@@ -104,24 +104,32 @@ export class StripeService {
     }
   }
 
-  async createStripePrice(name: string, amount: number, currency: string) {
+  async createStripePrice(name: string, amount: number, currency: string, productType: string) {
     try {
+      let recurring: any = {};
+  
+      // Configuración específica para productos recurrentes por ejemplo membresías
+      if (productType === 'membership') {
+        recurring = {
+          interval: 'month',
+        };
+      }
+  
       const price = await this.stripe.prices.create({
-        recurring: {
-          interval: "month",
-        },
+        recurring,
         unit_amount: amount,
         currency,
         product_data: {
           name,
         },
       });
+  
       return price;
     } catch (error) {
       throw new HttpException(error.message, error.statusCode);
     }
   }
-
+  
   async updateStripePrice(
     priceId: string,
     newAmount: number,

@@ -39,14 +39,14 @@ export class StateService {
   async findAllSelects(countryId: number) {
     const country = await this.countryRepository.findOne({
       where: { id: countryId },
-    });
+    }); 
     if (!country) {
       throw new HttpException("COUNTRY_NOT_FOUND", 404);
     }
     const states = await this.stateRepository.find({
       where: { country, active: 1 },
       order: {
-        id: "DESC",
+        name: "ASC", // Ordena por el campo 'name' de forma ascendente (alfabéticamente)
       },
     });
 

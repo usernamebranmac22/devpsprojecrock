@@ -90,10 +90,6 @@ export class User extends BaseEntity {
   @JoinColumn()
   wallet: Wallet;
 
-  @ManyToMany(() => ModePlay, { cascade: true })
-  @JoinTable()
-  modePlays: ModePlay[];
-
   @OneToOne(() => Owner, (owner) => owner.user)
   @JoinColumn()
   owner: Owner;
