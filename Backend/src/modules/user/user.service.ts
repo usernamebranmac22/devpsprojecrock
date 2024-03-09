@@ -125,6 +125,15 @@ export class UserService {
     return { message: "Ok", data: user };
   }
 
+  async findOneWithWallet(id: number) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ["wallet"],
+    });
+    if (!user) throw new HttpException("USER_NOT_FOUND", 404);
+    return { message: "Ok", data: user };
+  }
+
   async softDelete(id: number) {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) throw new HttpException("USER_NOT_FOUND", 404);

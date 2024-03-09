@@ -6,6 +6,11 @@ import { Membership } from "src/entities/membership.entity";
 import { Repository } from "typeorm";
 import { UserService } from "../user/user.service";
 import { ScreenService } from "../screen/screen.service";
+import { PackageRockobits } from "src/entities/packageRockobits.entity";
+import { WalletService } from "../wallet/wallet.service";
+import { TransactionsService } from "../transactions/transactions.service";
+import { generateTransactionDescription } from "src/utils/genereateDescriptionTransaction";
+import { TYPE_TRANSACTION } from "src/constants/typeTransaction.enum";
 const configService = new ConfigService();
 
 @Injectable()
@@ -17,8 +22,12 @@ export class StripeService {
   constructor(
     @InjectRepository(Membership)
     private readonly membershipRepository: Repository<Membership>,
+    @InjectRepository(PackageRockobits)
+    private readonly packageRockobitsRepository: Repository<PackageRockobits>,
     private readonly userService: UserService,
-    private readonly screenService: ScreenService
+    private readonly screenService: ScreenService,
+    private readonly walletService: WalletService,
+    private readonly transactionService: TransactionsService
   ) {}
 
   async createCheckoutSessionSubscription(
@@ -53,9 +62,9 @@ export class StripeService {
         },
       ],
       success_url: `${configService.get(
-        "URL_FRONT_ADMIN"
+        "URL_FRONT_COMPANY"
       )}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${configService.get("URL_FRONT_ADMIN")}/subscriptions`,
+      cancel_url: `${configService.get("URL_FRONT_COMPANY")}/subscriptions`,
       metadata: {
         userId: userId,
         membershipId: membership.id,
@@ -84,12 +93,47 @@ export class StripeService {
         },
       ],
       mode: "payment",
-      success_url: `${configService.get("URL_FRONT_ADMIN")}/screens`,
-      cancel_url: `${configService.get("URL_FRONT_ADMIN")}/screen/cancel`,
+      success_url: `${configService.get("URL_FRONT_COMPANY")}/screens`,
+      cancel_url: `${configService.get("URL_FRONT_COMPANY")}/screen/cancel`,
       metadata: {
         screenName: name,
         userId: userId,
         pucharseType: "screen",
+      },
+    });
+    return session;
+  }
+  async createCheckoutSessionPackage(packageId: number, userId: number) {
+    const company = await this.userService.findOne(userId);
+    const packageFound = await this.packageRockobitsRepository.findOne({
+      where: { id: packageId },
+    });
+
+    if (!packageFound) {
+      throw new HttpException("PACKAGE_NOT_FOUND", 400);
+    }
+
+    const session = await this.stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: `${packageFound.rockobitsAmount} Rockobits`,
+            },
+            unit_amount: packageFound.price,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${configService.get("URL_FRONT_COMPANY")}/rockobits`,
+      cancel_url: `${configService.get("URL_FRONT_COMPANY")}/rockobits/cancel`,
+      metadata: {
+        packageId: packageId,
+        userId: userId,
+        pucharseType: "package",
       },
     });
     return session;
@@ -104,17 +148,22 @@ export class StripeService {
     }
   }
 
-  async createStripePrice(name: string, amount: number, currency: string, productType: string) {
+  async createStripePrice(
+    name: string,
+    amount: number,
+    currency: string,
+    productType: string
+  ) {
     try {
       let recurring: any = {};
-  
+
       // Configuración específica para productos recurrentes por ejemplo membresías
-      if (productType === 'membership') {
+      if (productType === "membership") {
         recurring = {
-          interval: 'month',
+          interval: "month",
         };
       }
-  
+
       const price = await this.stripe.prices.create({
         recurring,
         unit_amount: amount,
@@ -123,13 +172,13 @@ export class StripeService {
           name,
         },
       });
-  
+
       return price;
     } catch (error) {
       throw new HttpException(error.message, error.statusCode);
     }
   }
-  
+
   async updateStripePrice(
     priceId: string,
     newAmount: number,
@@ -186,6 +235,32 @@ export class StripeService {
         idCompany: idUser,
         name: event.data.object.metadata.screenName,
         password: "1234",
+      });
+    }
+  }
+  async processWebhookEventPackage(event: any): Promise<any> {
+    if (event.type === "checkout.session.completed") {
+      console.log(event.data.object.metadata);
+      const companyFound = await this.userService.findOneWithWallet(
+        event.data.object.metadata.userId
+      );
+      const packageFound = await this.packageRockobitsRepository.findOne({
+        where: { id: event.data.object.metadata.packageId },
+      });
+      console.log(companyFound.data.wallet.id);
+      this.walletService.addAmount(
+        companyFound.data.wallet.id,
+        packageFound.rockobitsAmount
+      );
+
+      this.transactionService.createForRechargeWallet({
+        amount: packageFound.rockobitsAmount,
+        idUser: companyFound.data.id,
+        type: TYPE_TRANSACTION.COMPRE,
+        description: generateTransactionDescription(TYPE_TRANSACTION.COMPRE, {
+          amount: packageFound.rockobitsAmount,
+          companyName: companyFound.data.name,
+        }),
       });
     }
   }

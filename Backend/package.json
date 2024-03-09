@@ -5,6 +5,7 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -42,6 +43,7 @@
     "rxjs": "^7.8.1",
     "stripe": "^14.11.0",
     "typeorm": "^0.3.17",
+    "yt-dlp-wrap": "^2.3.12",
     "ytdl-core": "^4.11.5"
   },
   "devDependencies": {

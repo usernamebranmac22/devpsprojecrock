@@ -11,7 +11,6 @@ import { ModeplayModule } from "./modules/modeplay/modeplay.module";
 import { QuotationPlayModule } from "./modules/quotation_play/quotation_play.module";
 import { ConfirmPayUserModule } from "./modules/confirm_pay_user/confirm_pay_user.module";
 import { PlayListCompanyModule } from "./modules/play_list_company/play_list_company.module";
-import { RechargeCreditsModule } from "./modules/recharge-credits/recharge-credits.module";
 import { TransactionsModule } from "./modules/transactions/transactions.module";
 import { CryptoModule } from "./modules/crypto/crypto.module";
 import { OwnerModule } from "./modules/owner/owner.module";
@@ -25,6 +24,7 @@ import { MembershipModule } from "./modules/membership/membership.module";
 import { EmployeeModule } from "./modules/employee/employee.module";
 import { ScreenModule } from "./modules/screen/screen.module";
 import { PackageRockobitsModule } from "./modules/package-rockobits/package-rockobits.module";
+import { RockobitsModule } from './modules/rockobits/rockobits.module';
 
 @Module({
   imports: [
@@ -40,7 +40,6 @@ import { PackageRockobitsModule } from "./modules/package-rockobits/package-rock
     QuotationPlayModule,
     ConfirmPayUserModule,
     PlayListCompanyModule,
-    RechargeCreditsModule,
     TransactionsModule,
     CryptoModule,
     OwnerModule,
@@ -53,7 +52,8 @@ import { PackageRockobitsModule } from "./modules/package-rockobits/package-rock
     MembershipModule,
     EmployeeModule,
     ScreenModule,
-    PackageRockobitsModule
+    PackageRockobitsModule,
+    RockobitsModule
   ],
   providers: [
     {

@@ -6,6 +6,7 @@ import { Repository } from "typeorm";
 import { hash } from "bcrypt";
 import { ROLES } from "src/constants";
 import { CreateEmployeeDto } from "./dto/Create-employee.dto";
+import { WalletService } from "../wallet/wallet.service";
 
 @Injectable()
 export class EmployeeService {
@@ -13,7 +14,8 @@ export class EmployeeService {
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    private readonly walletService: WalletService
   ) {}
   async getEmployeesByIdCompany(id: number) {
     const company = await this.userRepository.findOne({
@@ -55,7 +57,13 @@ export class EmployeeService {
     const employeRegiser = { ...data, password: plaintoHash, user: user };
     const newEmployee = this.employeeRepository.create(employeRegiser);
     await this.employeeRepository.save(newEmployee);
-
+    
+    console.log(newEmployee);
+    
+    const wallet = await this.walletService.createWalletForEmployee(newEmployee.id);
+    newEmployee.wallet = wallet;
+    await this.employeeRepository.save(newEmployee);
+    
     return newEmployee;
   };
 }

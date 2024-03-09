@@ -4,10 +4,13 @@ import {
   BaseEntity,
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "./user.entity";
+import { Wallet } from "./wallet.entity";
 
 @Entity("employee")
 export class Employee extends BaseEntity {
@@ -37,4 +40,9 @@ export class Employee extends BaseEntity {
 
   @ManyToOne(() => User, (user) => user.employees)
   user: User;
+
+
+  @OneToOne(() => Wallet, (wallet) => wallet.user)
+  @JoinColumn()
+  wallet: Wallet;
 }

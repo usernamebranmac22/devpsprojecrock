@@ -52,6 +52,40 @@ export class TransactionsService {
     }
   }
 
+  async createForRechargeWallet(createTransactionDto: CreateTransactionDto) {
+    try {
+      const { idUser, amount, type, description } = createTransactionDto;
+
+      const transaction = await this.transactionsRepository.save({
+        idUser: idUser,
+        amount: amount,
+        type: type,
+        description,
+      });
+
+      return transaction;
+    } catch (error) {
+      throw new HttpException(error, 400);
+    }
+  }
+
+  async createForTransfer(createTransactionDto: CreateTransactionDto) {
+    try {
+      const { idUser, amount, type, description } = createTransactionDto;
+
+      const transaction = await this.transactionsRepository.save({
+        idUser: idUser,
+        amount: amount,
+        type: type,
+        description,
+      });
+
+      return transaction;
+    } catch (error) {
+      throw new HttpException(error, 400);
+    }
+  }
+
   async findAllById(idUser: number) {
     try {
       const transactions = await this.transactionsRepository.find({

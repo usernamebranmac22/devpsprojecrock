@@ -4,14 +4,11 @@ import {
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { ModePlay } from "./modePlay.entity";
 import { Exclude } from "class-transformer";
 import { Wallet } from "./wallet.entity";
 import { Owner } from "./owner.entity";
@@ -19,7 +16,6 @@ import { Country } from "./country.entity";
 import { State } from "./state.entity";
 import { City } from "./city.entity";
 import { Membership } from "./membership.entity";
-import { MembershipTypes } from "src/constants/membership.enum";
 import { Employee } from "./employee.entity";
 import { Screen } from "./screen.entity";
 @Entity("user")

@@ -7,6 +7,7 @@ import {
   JoinColumn,
 } from "typeorm";
 import { User } from "./user.entity";
+import { Employee } from "./employee.entity";
 
 @Entity("wallet")
 export class Wallet extends BaseEntity {
@@ -25,4 +26,11 @@ export class Wallet extends BaseEntity {
   })
   @JoinColumn()
   user: User;
+
+  @OneToOne(() => Employee, (employee) => employee.wallet, {
+    cascade: true,
+    onDelete: "CASCADE",
+  })
+  @JoinColumn()
+  employee: Employee;
 }

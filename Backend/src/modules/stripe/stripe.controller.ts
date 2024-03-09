@@ -56,6 +56,19 @@ export class StripeController {
     );
     return { sessionId: session.id };
   }
+  @Post("create-checkout-session-package")
+  async createCheckoutSessionPackage(
+    @Body("packageId") packageId: number,
+    @Body("userId") userId: number
+  ) {
+
+
+    const session = await this.stripeService.createCheckoutSessionPackage(
+      packageId,
+      userId
+    );
+    return { sessionId: session.id };
+  }
 
   @Post("checkout-session-subscription")
   async getCheckoutSession(@Body("sessionId") sessionId: string) {
@@ -105,6 +118,11 @@ export class StripeController {
             console.log("Procesar evento de pantalla");
             const processedEventScreen =
               await this.stripeService.processWebhookEventScreen(event);
+            break;
+          case "package":
+            console.log("Procesar evento de la compra de rockobits");
+            const processedEventPackage =
+              await this.stripeService.processWebhookEventPackage(event);
             break;
           // Otros casos según tus necesidades
 

@@ -222,16 +222,16 @@ export class PlayListCompanyService {
     );
   }
 
-  async getVideoFileUrl(videoId: string): Promise<string> {
+  async getVideoFileUrl(videoId: string): Promise<any> {
     try {
       const info = await ytdl.getInfo(videoId);
       const format = ytdl.chooseFormat(info.formats, {
         quality: "highestvideo",
-      });
+      })
 
       if (format && format.url) {
-        return format.url;
-      } else {
+        return format;
+      } else {  
         throw new Error("No se pudo obtener la URL del archivo de video.");
       }
     } catch (error) {

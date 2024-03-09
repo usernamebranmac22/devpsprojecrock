@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Query } from "@nestjs/common";
 import { CityService } from "./city.service";
 import { CreateCityDto } from "./dto/Create-city.dto";
 
@@ -26,4 +26,16 @@ export class CityController {
     const { name, stateId } = body;
     return this.CityService.create(name, stateId);
   }
+
+  @Delete(":stateId")
+  delete(@Param("stateId") stateId: number) {
+    return this.CityService.delete(stateId);
+  }
+
+  @Delete("/deleteallcities/:stateId")
+  deleteAllCities(@Param("stateId") stateId: number) {
+    return this.CityService.deleteAllCities(stateId);
+  }
+
+
 }

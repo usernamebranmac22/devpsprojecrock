@@ -55,7 +55,6 @@ export class CityService {
     return { message: "ok", data: cities };
   }
 
-
   async create(name: string, stateId: number) {
     const state = await this.stateRepository.findOne({
       where: { id: stateId },
@@ -71,5 +70,27 @@ export class CityService {
     const city = this.cityRepository.create({ name, state });
     await this.cityRepository.save(city);
     return { message: "ok", data: city };
+  }
+
+  async delete(id: number) {
+    const city = await this.cityRepository.findOne({
+      where: { id },
+    });
+    if (!city) {
+      throw new HttpException("CITY_NOT_FOUND", 404);
+    }
+    await this.cityRepository.delete(id);
+    return { message: "ok" };
+  }
+
+  async deleteAllCities(stateId: number) {
+    const state = await this.stateRepository.findOne({
+      where: { id: stateId },
+    });
+    if (!state) {
+      throw new HttpException("STATE_NOT_FOUND", 404);
+    }
+    await this.cityRepository.delete({ state });
+    return { message: "ok" };
   }
 }
