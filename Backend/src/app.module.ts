@@ -24,16 +24,10 @@ import { MembershipModule } from "./modules/membership/membership.module";
 import { EmployeeModule } from "./modules/employee/employee.module";
 import { ScreenModule } from "./modules/screen/screen.module";
 import { PackageRockobitsModule } from "./modules/package-rockobits/package-rockobits.module";
-import { RockobitsModule } from './modules/rockobits/rockobits.module';
-import { join } from "path";
-import { ServeStaticModule } from '@nestjs/serve-static';
-
+import { RockobitsModule } from "./modules/rockobits/rockobits.module";
 
 @Module({
   imports: [
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-    }),
     ConfigModule.forRoot({
       envFilePath: `.${process.env.NODE_ENV.trim()}.env`,
       isGlobal: true,
@@ -59,7 +53,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     EmployeeModule,
     ScreenModule,
     PackageRockobitsModule,
-    RockobitsModule
+    RockobitsModule,
   ],
   providers: [
     {
