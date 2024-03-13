@@ -56,7 +56,7 @@ function Login() {
       return;
     }
 
-    // Agregar lógica para manejar el envío del código por correo electrónico
+    // Agregar lógica para manejar el envsío del código por correo electrónico
     if (formData.code) {
       // Aquí puedes implementar el envío del código por correo electrónico
       console.log(`Código enviado a ${formData.email}: ${formData.code}`);
