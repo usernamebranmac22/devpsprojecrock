@@ -23,11 +23,11 @@ const configService = new ConfigService();
 //RENDER CONFIG
 
 export const DataSourceConfig: DataSourceOptions = {
-  type: "postgres",
-  url: configService.get("DB_URL"),
-  entities: [__dirname + "/../**/*.entity{.ts,.js}"],
-  synchronize: true,
-  ssl: { rejectUnauthorized: false },
+type: "postgres",
+url: configService.get("DB_URL"),
+entities: [__dirname + "/../**/*.entity{.ts,.js}"],
+synchronize: true,
+ssl: { rejectUnauthorized: false },
 };
 
 export const AppDS = new DataSource(DataSourceConfig);

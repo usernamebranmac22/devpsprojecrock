@@ -3,15 +3,6 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "deleteOutDir": true, 
-    "assets": [
-      {
-        "include": "../public/vouchers",
-        "outDir": "/dist/public/vouchers",
-        "watchAssets": true
-      }
-      
-    ],
-    "watchAssets": true
+    "deleteOutDir": true
   }
 }
