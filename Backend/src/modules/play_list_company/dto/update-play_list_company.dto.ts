@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber } from "class-validator";
+import { IsEnum, IsNumber, IsString } from "class-validator";
 import { STATES_VIDEO_IN_PLAYLIST } from "src/constants/orderPlaylist.enum";
 
 export class UpdatePlayListCompanyDto {
@@ -7,4 +7,7 @@ export class UpdatePlayListCompanyDto {
 
   @IsNumber()
   idCompany: number;
+
+  @IsString()
+  codeScreen: string;
 }

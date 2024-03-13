@@ -10,7 +10,6 @@ import {
   ParseIntPipe,
 } from "@nestjs/common";
 import { PlayListCompanyService } from "./play_list_company.service";
-import { CreatePlayListCompanyDto } from "./dto/create-play_list_company.dto";
 import { UpdatePlayListCompanyDto } from "./dto/update-play_list_company.dto";
 import { QueryPlayListDto } from "./dto/query-playlist.dto";
 
@@ -45,5 +44,15 @@ export class PlayListCompanyController {
       +idPlaylist,
       updatePlayListCompanyDto
     );
+  }
+
+  @Get('/test/:videoId')
+  async getVideoFileUrl(@Param('videoId') videoId: string): Promise<{ url: string }> {
+    try {
+      const url = await this.playListCompanyService.getVideoFileUrl(videoId);
+      return { url };
+    } catch (error) {
+      // Maneja el error y devuelve una respuesta apropiada
+    }
   }
 }

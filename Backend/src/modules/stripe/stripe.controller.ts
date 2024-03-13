@@ -9,8 +9,6 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { StripeService } from "./stripe.service";
-import { ScreenService } from "../screen/screen.service";
-import { parse } from "path";
 import { UserService } from "../user/user.service";
 
 @Controller("stripe")
@@ -46,8 +44,7 @@ export class StripeController {
     console.log(company);
     const screenLimitCompany = company.data.screenLimit;
     const screenLength = company.data.screens.length;
-    console.log(`screenLength: ${screenLength}`);
-    console.log(`screenLimitCompany: ${screenLimitCompany}`);
+
 
     if (screenLength >= screenLimitCompany) {
       throw new HttpException("SCREEN_LIMIT_EXCEEDED", 400);
@@ -55,6 +52,19 @@ export class StripeController {
 
     const session = await this.stripeService.createCheckoutSessionScreen(
       screenName,
+      userId
+    );
+    return { sessionId: session.id };
+  }
+  @Post("create-checkout-session-package")
+  async createCheckoutSessionPackage(
+    @Body("packageId") packageId: number,
+    @Body("userId") userId: number
+  ) {
+
+
+    const session = await this.stripeService.createCheckoutSessionPackage(
+      packageId,
       userId
     );
     return { sessionId: session.id };
@@ -72,13 +82,24 @@ export class StripeController {
       return { error: error.message };
     }
   }
+  @Post("checkout-session-rockobits")
+  async getCheckoutSessionRockobits(@Body("sessionId") sessionId: string) {
+    try {
+      const session = await this.stripeService.getCheckoutSessionRockobits(sessionId);
+
+      if (session.payment_status === "paid") {
+      }
+      return session;
+    } catch (error) {
+      return { error: error.message };
+    }
+  }
 
   @Post("webhook")
   async handleWebhookEvent(
     @Headers("stripe-signature") signature: string,
     @Req() request: any
   ) {
-    console.log("Hola estan en el webhook");
     try {
       if (!signature) {
         throw new BadRequestException("Missing stripe-signature header");
@@ -109,6 +130,11 @@ export class StripeController {
             console.log("Procesar evento de pantalla");
             const processedEventScreen =
               await this.stripeService.processWebhookEventScreen(event);
+            break;
+          case "package":
+            console.log("Procesar evento de la compra de rockobits");
+            const processedEventPackage =
+              await this.stripeService.processWebhookEventPackage(event);
             break;
           // Otros casos según tus necesidades
 

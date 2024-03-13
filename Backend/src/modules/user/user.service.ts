@@ -76,6 +76,14 @@ export class UserService {
     return { total, users };
   }
 
+  async findOneByEmail(email: string) {
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+    if (!user) throw new HttpException("USER_NOT_FOUND", 404);
+    return user;
+  }
+
   async getEmployeesByIdCompany(id: number) {
     const user = await this.userRepository.findOne({
       where: { id },
@@ -120,6 +128,15 @@ export class UserService {
     const user = await this.userRepository.findOne({
       where: { id },
       relations: ["country", "state", "city", "activeMembership", "screens"],
+    });
+    if (!user) throw new HttpException("USER_NOT_FOUND", 404);
+    return { message: "Ok", data: user };
+  }
+
+  async findOneWithWallet(id: number) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ["wallet"],
     });
     if (!user) throw new HttpException("USER_NOT_FOUND", 404);
     return { message: "Ok", data: user };

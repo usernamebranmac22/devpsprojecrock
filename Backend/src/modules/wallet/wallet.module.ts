@@ -5,11 +5,13 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Wallet } from "src/entities/wallet.entity";
 import { User } from "src/entities/user.entity";
 import { CryptoModule } from "../crypto/crypto.module";
+import { Employee } from "src/entities/employee.entity";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Wallet]),
     TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([Employee]),
     CryptoModule,
   ],
   controllers: [WalletController],

@@ -45,4 +45,14 @@ export function generateTransactionDescription(
       details.amount
     } rockobits a la empresa ${details.companyName.toUpperCase()}`;
   }
+
+  if (type === TYPE_TRANSACTION.TRANSFERI_EMPLEADO) {
+    return `Transferencia al empleado ${details.clientName} por ${details.amount} rockobits`;
+  }
+
+  if (type === TYPE_TRANSACTION.RECIBO_EMPLEADO) {
+    return `Recibo de ${
+      details.amount
+    } rockobits de la empresa ${details.companyName.toUpperCase()}`;
+  }
 }

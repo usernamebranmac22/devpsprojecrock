@@ -22,11 +22,18 @@ export class AuthController {
     return this.authService.register(userObjetRegister);
   }
 
-  // Login para todos los tipos de usuarios.
+  // Login para todos los tipos de usuarios. (menos empleado)
   @Post("login/:type")
   loginUser(@Body() userObjetLogin: LoginAuthDto, @Param("type") type: string) {
     return this.authService.login(userObjetLogin, type);
   }
+  // Login para empleados
+  @Post("login-employee")
+  loginEmployee(@Body() loginAuthDto: LoginAuthDto) {
+    return this.authService.loginEmployee(loginAuthDto);
+  }
+
+
 
   // Este endpoint es para verificar la cuenta de los usuarios de tipo cliente.
   @Get("verify-account")

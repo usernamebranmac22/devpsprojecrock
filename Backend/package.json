@@ -26,6 +26,7 @@
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/serve-static": "^4.0.1",
     "@nestjs/typeorm": "^10.0.1",
     "axios": "^1.6.7",
     "bcrypt": "^5.1.1",
@@ -41,7 +42,9 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "stripe": "^14.11.0",
-    "typeorm": "^0.3.17"
+    "typeorm": "^0.3.17",
+    "yt-dlp-wrap": "^2.3.12",
+    "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

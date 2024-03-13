@@ -12,4 +12,10 @@ export class WalletController {
       await this.walletService.getDecryptedAmount(walletId);
     return { message: "ok", data: { decryptedAmount } };
   }
+
+  @Get(":userId")
+  async getWalletBalanceByUserId(@Param("userId") userId: number) {
+    const wallet = await this.walletService.getWalletBalanceByUserId(userId);
+    return { message: "ok", data: wallet };
+  }
 }
