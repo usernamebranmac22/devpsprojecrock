@@ -56,6 +56,12 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
+  @Get("email/:email")
+  async findOneByEmail(@Param("email") email: string) {
+    const user = await this.userService.findOneByEmail(email);
+    return { message: "ok", data: user };
+  }
+
   //Get all employees by company
   @Get("/employee/:id")
   async getEmployeesByIdCompany(@Param("id") id: number) {

@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, IsString } from "class-validator";
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { TYPE_TRANSACTION } from "src/constants/typeTransaction.enum";
 
 export class CreateTransactionDto {
@@ -13,4 +13,8 @@ export class CreateTransactionDto {
 
   @IsString()
   description: string;
+
+  @IsString()
+  @IsOptional()
+  voucher_url?: string;
 }

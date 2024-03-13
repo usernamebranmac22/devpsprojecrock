@@ -71,13 +71,14 @@ export class TransactionsService {
 
   async createForTransfer(createTransactionDto: CreateTransactionDto) {
     try {
-      const { idUser, amount, type, description } = createTransactionDto;
+      const { idUser, amount, type, description, voucher_url } = createTransactionDto;
 
       const transaction = await this.transactionsRepository.save({
         idUser: idUser,
         amount: amount,
         type: type,
         description,
+        voucher_url: voucher_url,
       });
 
       return transaction;

@@ -128,7 +128,9 @@ export class StripeService {
         },
       ],
       mode: "payment",
-      success_url: `${configService.get("URL_FRONT_COMPANY")}/rockobits`,
+      success_url: `${configService.get(
+        "URL_FRONT_COMPANY"
+      )}/rockobits/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${configService.get("URL_FRONT_COMPANY")}/rockobits/cancel`,
       metadata: {
         packageId: packageId,
@@ -140,6 +142,14 @@ export class StripeService {
   }
 
   async getCheckoutSession(sessionId: string) {
+    try {
+      const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+      return session;
+    } catch (error) {
+      throw new HttpException(error.message, error.statusCode);
+    }
+  }
+  async getCheckoutSessionRockobits(sessionId: string) {
     try {
       const session = await this.stripe.checkout.sessions.retrieve(sessionId);
       return session;

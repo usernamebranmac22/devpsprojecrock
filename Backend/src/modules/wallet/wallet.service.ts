@@ -153,28 +153,28 @@ export class WalletService {
     };
   }
 
-  async transferRockobits(companyWalletId: number, employeeWalletId: number, amount: number) {
+  async transferRockobits(emiterWalletId: number, receptorWalletId: number, amount: number) {
     try {
-      const companyWallet = await this.walletRepository.findOne({
+      const emiterWallet = await this.walletRepository.findOne({
         where: {
-          id: companyWalletId,
+          id: emiterWalletId,
         },
       });
-      const employeeWallet = await this.walletRepository.findOne({
+      const receptorWallet = await this.walletRepository.findOne({
         where: {
-          id: employeeWalletId,
+          id: receptorWalletId,
         },
       
       });
 
       // Verificar que ambos Wallets existan
-      if (!companyWallet || !employeeWallet) {
+      if (!emiterWallet || !receptorWallet) {
         throw new HttpException("WALLET_NOT_FOUND", 400);
       }
 
       // Desencriptar los montos
-      const companyAmount = parseInt(this.cryptoService.decrypt(companyWallet.amount));
-      const employeeAmount = parseInt(this.cryptoService.decrypt(employeeWallet.amount));
+      const companyAmount = parseInt(this.cryptoService.decrypt(emiterWallet.amount));
+      const employeeAmount = parseInt(this.cryptoService.decrypt(receptorWallet.amount));
 
       // Verificar que la empresa tenga suficientes rockobits para transferir
       if (companyAmount < amount) {
@@ -190,17 +190,17 @@ export class WalletService {
       const encryptedEmployeeAmount = this.cryptoService.encrypt(newEmployeeAmount.toString());
 
       // Actualizar los Wallets
-      companyWallet.amount = encryptedCompanyAmount;
-      employeeWallet.amount = encryptedEmployeeAmount;
+      emiterWallet.amount = encryptedCompanyAmount;
+      receptorWallet.amount = encryptedEmployeeAmount;
 
-      companyWallet.last_Update = new Date();
-      employeeWallet.last_Update = new Date();
+      emiterWallet.last_Update = new Date();
+      receptorWallet.last_Update = new Date();
 
-      await this.walletRepository.save([companyWallet, employeeWallet]);
+      await this.walletRepository.save([emiterWallet, receptorWallet]);
 
       return {
-        companyWalletId: companyWallet.id,
-        employeeWalletId: employeeWallet.id,
+        emiterWalletId: emiterWallet.id,
+        receptorWalletId: receptorWallet.id,
         transferredAmount: amount,
       };
     } catch (error) {

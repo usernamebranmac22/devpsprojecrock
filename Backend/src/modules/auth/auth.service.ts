@@ -17,12 +17,15 @@ import { Country } from "src/entities/country.entity";
 import { State } from "src/entities/state.entity";
 import { City } from "src/entities/city.entity";
 import { ScreenService } from "../screen/screen.service";
+import { Employee } from "src/entities/employee.entity";
 const logger = new Logger("MyApp");
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(Employee)
+    private readonly employeeRepository: Repository<Employee>,
     private readonly walletService: WalletService,
     private jwtAuthService: JwtService,
     private readonly emailService: EmailService,
@@ -163,7 +166,7 @@ export class AuthService {
       const { email, password } = userObjectLogin;
       const findUser = await this.userRepository.findOne({
         where: { email },
-        relations: ["country", "activeMembership"],
+        relations: ["country", "activeMembership", "wallet"],
       });
       if (!findUser) {
         throw new HttpException("USER_NOT_FOUND", 404);
@@ -237,6 +240,15 @@ export class AuthService {
       findUser.adminCode = null;
       await this.userRepository.save(findUser);
 
+      let balance;
+
+      console.log(findUser);
+      if (findUser.type === ROLES.EMPRESA) {
+        balance = await this.walletService.getDecryptedAmount(
+          findUser.wallet.id
+        );
+      }
+
       // Response login data
       const data = {
         user: {
@@ -245,11 +257,66 @@ export class AuthService {
           lastName: findUser.last_Name,
           email: findUser.email,
           type: findUser.type,
+          balance: balance,
+          wallet: findUser.wallet ? findUser.wallet : null,
           membership: {
             name: findUser.activeMembership?.name,
             type: findUser.activeMembership?.type,
             expiration: findUser.membershipExpirationDate,
           },
+        },
+        token,
+        tokenExpiration,
+      };
+
+      return data;
+    } catch (error) {
+      throw new HttpException(error, 400);
+    }
+  }
+
+  async loginEmployee(loginAuthDto: LoginAuthDto) {
+    try {
+      const { email, password } = loginAuthDto;
+      const findUser = await this.employeeRepository.findOne({
+        where: { email },
+        relations: ["wallet"],
+      });
+      if (!findUser) {
+        throw new HttpException("EMPLOYEE_NOT_FOUND", 404);
+      }
+
+      // Check password
+      const checkPassword = await compare(password, findUser.password);
+      if (!checkPassword) {
+        throw new HttpException("PASSWORD_INCORRECT", 403);
+      }
+
+      // Generate token
+      const payload = {
+        id: findUser.id,
+        name: findUser.name,
+      };
+
+      const token = this.jwtAuthService.sign(payload, { expiresIn: "1h" });
+      const tokenExpiration = new Date(
+        new Date().getTime() + 1 * 60 * 60 * 1000
+      );
+      await this.employeeRepository.save(findUser);
+
+      const balance = await this.walletService.getDecryptedAmount(
+        findUser.wallet.id
+      );
+      // Response login data
+      const data = {
+        user: {
+          id: findUser.id,
+          name: findUser.name,
+          lastName: findUser.lastName,
+          email: findUser.email,
+          type: findUser.type,
+          balance: balance,
+          wallet: findUser.wallet,
         },
         token,
         tokenExpiration,

@@ -82,6 +82,18 @@ export class StripeController {
       return { error: error.message };
     }
   }
+  @Post("checkout-session-rockobits")
+  async getCheckoutSessionRockobits(@Body("sessionId") sessionId: string) {
+    try {
+      const session = await this.stripeService.getCheckoutSessionRockobits(sessionId);
+
+      if (session.payment_status === "paid") {
+      }
+      return session;
+    } catch (error) {
+      return { error: error.message };
+    }
+  }
 
   @Post("webhook")
   async handleWebhookEvent(

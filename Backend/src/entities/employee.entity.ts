@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import { User } from "./user.entity";
 import { Wallet } from "./wallet.entity";
+import { ROLES } from "src/constants";
 
 @Entity("employee")
 export class Employee extends BaseEntity {
@@ -38,9 +39,11 @@ export class Employee extends BaseEntity {
   @Column({ nullable: false, default: true })
   active: boolean;
 
+  @Column({ type: "enum", enum: ROLES, default: ROLES.EMPLEADOS })
+  type: ROLES;
+  
   @ManyToOne(() => User, (user) => user.employees)
   user: User;
-
 
   @OneToOne(() => Wallet, (wallet) => wallet.user)
   @JoinColumn()

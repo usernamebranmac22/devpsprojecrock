@@ -26,6 +26,9 @@ export class Transaction extends BaseEntity {
   @Column({ nullable: true })
   description: string | null;
 
+  @Column({ nullable: true })
+  voucher_url: string | null;
+
   @BeforeInsert()
   setCreationDate() {
     this.createdAt = new Date();

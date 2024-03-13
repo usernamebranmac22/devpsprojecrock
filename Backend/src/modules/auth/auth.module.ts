@@ -5,7 +5,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "src/entities/user.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
-import { ModePlay } from "src/entities/modePlay.entity";
 import { ModeplayModule } from "../modeplay/modeplay.module";
 import { WalletModule } from "../wallet/wallet.module";
 import { EmailModule } from "../email/email.module";
@@ -13,6 +12,7 @@ import { CountryModule } from "../country/country.module";
 import { StateModule } from "../state/state.module";
 import { CityModule } from "../city/city.module";
 import { ScreenModule } from "../screen/screen.module";
+import { Employee } from "src/entities/employee.entity";
 
 const configService = new ConfigService();
 
@@ -26,7 +26,7 @@ const configService = new ConfigService();
     ModeplayModule,
     ScreenModule,
     TypeOrmModule.forFeature([User]),
-    TypeOrmModule.forFeature([ModePlay]),
+    TypeOrmModule.forFeature([Employee]),
     JwtModule.register({
       global: true,
       secret: configService.get("JWT_SECRET"),

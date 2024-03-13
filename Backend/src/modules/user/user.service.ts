@@ -76,6 +76,14 @@ export class UserService {
     return { total, users };
   }
 
+  async findOneByEmail(email: string) {
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+    if (!user) throw new HttpException("USER_NOT_FOUND", 404);
+    return user;
+  }
+
   async getEmployeesByIdCompany(id: number) {
     const user = await this.userRepository.findOne({
       where: { id },
