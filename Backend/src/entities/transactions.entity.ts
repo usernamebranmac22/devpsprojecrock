@@ -11,7 +11,7 @@ export class Transaction extends BaseEntity {
   @PrimaryGeneratedColumn("increment")
   id: number;
 
-  @Column({ type: "int" })
+  @Column({ type: "int", nullable: true})
   idUser: number;
 
   @Column({ type: "int" })
